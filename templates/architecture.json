@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI-Native Architecture Metadata",
+  "description": "Machine-readable dependency graph for AI agent navigation",
+  "version": "1.0.0",
+  "project": {
+    "name": "your-project-name",
+    "version": "1.0.0",
+    "description": "Brief project description",
+    "repository": "https://github.com/username/repo"
+  },
+  "modules": {
+    "auth": {
+      "entry": "src/auth/index.ts",
+      "dependencies": ["db", "crypto"],
+      "exports": [
+        "authenticate",
+        "authorize",
+        "validateToken",
+        "refreshToken"
+      ],
+      "contracts": "src/auth/contracts.ts",
+      "description": "Authentication and authorization service",
+      "maintainer": "team-security"
+    },
+    "db": {
+      "entry": "src/db/index.ts",
+      "dependencies": [],
+      "exports": [
+        "query",
+        "transaction",
+        "migrate"
+      ],
+      "contracts": "src/db/contracts.ts",
+      "description": "Database abstraction layer",
+      "maintainer": "team-backend"
+    },
+    "api": {
+      "entry": "src/api/index.ts",
+      "dependencies": ["auth", "db", "validation"],
+      "exports": [
+        "createRouter",
+        "handleRequest"
+      ],
+      "contracts": "src/api/contracts.ts",
+      "description": "HTTP API layer",
+      "maintainer": "team-backend"
+    },
+    "validation": {
+      "entry": "src/validation/index.ts",
+      "dependencies": [],
+      "exports": [
+        "validateInput",
+        "sanitizeHtml"
+      ],
+      "contracts": "src/validation/contracts.ts",
+      "description": "Input validation and sanitization",
+      "maintainer": "team-security"
+    }
+  },
+  "layers": {
+    "interface": {
+      "modules": ["api", "cli", "webhooks"],
+      "description": "External-facing interfaces",
+      "dependencies": ["domain"]
+    },
+    "domain": {
+      "modules": ["auth", "users", "payments"],
+      "description": "Business logic and domain models",
+      "dependencies": ["infrastructure"]
+    },
+    "infrastructure": {
+      "modules": ["db", "cache", "queue", "storage"],
+      "description": "External system integrations",
+      "dependencies": []
+    }
+  },
+  "constraints": {
+    "noCircularDeps": true,
+    "layerFlow": "interface → domain → infrastructure",
+    "maxDependencies": 5,
+    "enforceBoundedContexts": true
+  },
+  "tools": {
+    "build": {
+      "command": "pnpm build",
+      "description": "Build project for production"
+    },
+    "test": {
+      "command": "pnpm test",
+      "description": "Run test suite"
+    },
+    "lint": {
+      "command": "pnpm lint",
+      "description": "Check code style"
+    },
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "description": "Run TypeScript type checking"
+    }
+  },
+  "documentation": {
+    "agents": "AGENTS.md",
+    "readme": "README.md",
+    "api": "docs/api.md",
+    "architecture": "docs/architecture.md"
+  }
+}
