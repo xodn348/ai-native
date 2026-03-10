@@ -6,27 +6,27 @@
 [![Research Papers](https://img.shields.io/badge/Research-25%2B%20Papers-blue)](./research/papers.md)
 [![Industry Validated](https://img.shields.io/badge/Industry-Production%20Proven-green)](./BENCHMARKS.md)
 
-**Give this URL to any AI agent** to provide project structure guidance and implementation guardrails.
+**Give this URL to any AI agent** for practical project guardrails.
 
 ---
 
 ## Why AI-Native?
 
-**A large share of AI agent failures are localization failures, not pure generation failures.** Agents often struggle more with finding the right files and functions than with writing syntax.
+**Many AI failures are localization failures, not generation failures.** Agents miss the right files/functions more often than syntax.
 
 Traditional codebases force agents to repeatedly load large contexts, infer implicit dependencies, and re-scan modules. **AI-native structure eliminates this waste.**
 
-### Reported Impact Ranges (Context-Dependent)
+### Reported Impact (Context-Dependent)
 
-| Improvement | Reported Range | Source |
+| Improvement | Range | Source |
 |---|---:|---|
 | Token usage per task | **-23 to -54%** | [SWE-Pruner](https://arxiv.org/abs/2601.16746) |
 | Code localization | **+40%** | [Navigation Paradox](https://arxiv.org/abs/2602.20048) |
-| Critical bug detection | **0 to +67%** (small internal replication) | [Our A/B test](./experiments/semantic-depth-ab-test.md) |
-| Hallucination rate | **up to -35%** (typed + validated stacks) | [Industry benchmarks](./BENCHMARKS.md) |
-| Correction iterations | **-20 to -40%** (workflows with agent docs) | [AGENTS.md analysis](./BENCHMARKS.md) |
+| Critical bug detection | **0 to +67%** (internal replication) | [Our A/B test](./experiments/semantic-depth-ab-test.md) |
+| Hallucination rate | **up to -35%** (typed/validated stacks) | [Industry benchmarks](./BENCHMARKS.md) |
+| Correction iterations | **-20 to -40%** (with agent docs) | [AGENTS.md analysis](./BENCHMARKS.md) |
 
-**Illustrative ROI for a 10-developer team**: $33K–$66K/year API savings + ~500 hours/year recovered (varies by workflow maturity and model/provider costs).
+**Illustrative ROI (10 developers)**: $33K–$66K/year API savings + ~500 hours/year recovered.
 
 ---
 
@@ -79,7 +79,7 @@ test -f AGENTS.md && test -f tsconfig.json && test -f .ai/architecture.json && e
 
 **Navigation & Architecture**
 - Graph navigation: +40% localization vs retrieval ([arXiv:2602.20048](https://arxiv.org/abs/2602.20048))
-- LSP-first lookup: up to 900× faster in controlled comparisons (50ms vs 45s, Teymoori 2025)
+- LSP-first lookup: up to 900× faster in controlled comparisons (50ms vs 45s)
 - Semantic depth: -0.73 to -0.95 correlation with success (Xie et al. 2026)
 
 **Naming & Documentation**
@@ -100,4 +100,4 @@ test -f AGENTS.md && test -f tsconfig.json && test -f .ai/architecture.json && e
 - [Development Methodology](./docs/guides/development-methodology.md)
 - [Contributing Guide](./CONTRIBUTING.md)
 
-**Built with evidence-informed practices, not prompt folklore.** Treat headline metrics as directional until replicated in your own codebase.
+**Evidence-informed, not prompt folklore.** Treat headline metrics as directional until replicated in your codebase.
