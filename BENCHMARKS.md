@@ -121,4 +121,30 @@ Quantitative evidence from controlled experiments and production deployments.
 
 ---
 
+## Our Experiments (Original)
+
+These are our independent replications conducted March 2026. See linked files for full methodology and raw data.
+
+### Naming Experiment Summary
+
+| Metric | Control A (Minimal) | Treatment B (Descriptive) | Improvement |
+|--------|---------------------|---------------------------|-------------|
+| **Accuracy** | 5/6 (83.3%) | 6/6 (100%) | **+17%** |
+| **Avg Confidence** | 3.3/5 (1 LOW) | 4.0/5 (0 LOW) | **+21%** |
+| **Edge Case Handling** | Q5: vague guess | Q5: correct inference | **+100%** |
+
+[Link to full experiment: ./experiments/naming-ab-test.md](./experiments/naming-ab-test.md)
+
+### Semantic Depth Experiment Summary
+
+| Metric | Control A (Deep Nesting) | Treatment B (Flat Structure) | Improvement |
+|--------|--------------------------|------------------------------|-------------|
+| **Total Bugs** | 18 | 19 | +5.6% |
+| **Critical Bugs** | 6 | 10 | **+67%** |
+| **Architectural Gaps Detected** | 0 (missed own missing tx) | 1 (caught own missing tx) | **Self-documenting** |
+
+[Link to full experiment: ./experiments/semantic-depth-ab-test.md](./experiments/semantic-depth-ab-test.md)
+
+---
+
 **All results from peer-reviewed research or production data (2024-2026).**

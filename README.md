@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Research Papers](https://img.shields.io/badge/Research-25%2B%20Papers-blue)](./research/papers.md)
-[![Industry Validated](https://img.shields.io/badge/Industry-Production%20Proven-green)](./research/industry.md)
+[![Industry Validated](https://img.shields.io/badge/Industry-Production%20Proven-green)](./BENCHMARKS.md)
 
 **Give this URL to any AI agent** → It will understand how to build AI-friendly codebases.
 
@@ -26,9 +26,9 @@ This is not about "AI-generated code" — it's about structuring codebases so **
 
 \`\`\`bash
 # 1. Copy templates to your project
-curl -O https://raw.githubusercontent.com/[your-repo]/ai-native/main/templates/AGENTS.md
-curl -O https://raw.githubusercontent.com/[your-repo]/ai-native/main/templates/tsconfig.json
-curl -O https://raw.githubusercontent.com/[your-repo]/ai-native/main/templates/architecture.json
+curl -O https://raw.githubusercontent.com/xodn348/ai-native/main/templates/AGENTS.md
+curl -O https://raw.githubusercontent.com/xodn348/ai-native/main/templates/tsconfig.json
+curl -O https://raw.githubusercontent.com/xodn348/ai-native/main/templates/architecture.json
 
 # 2. Create .ai directory
 mkdir .ai
