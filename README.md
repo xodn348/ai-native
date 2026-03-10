@@ -30,6 +30,17 @@ Traditional codebases force agents to repeatedly load large contexts, infer impl
 
 ---
 
+## How to Use
+
+**Default (simplest): URL-only**
+- Give your AI agent this URL.
+- Start coding immediately.
+- This is enough for short tasks and experiments.
+
+**Optional (recommended for long-term projects): Quick Start**
+- Run setup once to add local agent context files.
+- Then collaborate with your AI agent to optimize `AGENTS.md` and architecture layout for your real stack.
+
 ## Quick Start
 
 ```bash
@@ -44,7 +55,10 @@ mkdir -p .ai && mv -f architecture.json .ai/
 # Verify setup
 test -f AGENTS.md && test -f tsconfig.json && test -f .ai/architecture.json && echo "✓ Setup complete"
 
-# Customize AGENTS.md for your stack, then start coding
+# Ask your AI agent to optimize AGENTS.md for your stack and constraints
+# Example prompt:
+# "Read AGENTS.md and this repo. Rewrite AGENTS.md for Next.js + pnpm + PostgreSQL.
+# Add exact build/test/lint commands and non-negotiable architecture constraints."
 ```
 
 ---
