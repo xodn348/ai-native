@@ -3,6 +3,7 @@
 > **Evidence-based guidelines for building codebases optimized for AI agent interaction**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![npm](https://img.shields.io/npm/v/ai-native)](https://www.npmjs.com/package/ai-native)
 [![Research Papers](https://img.shields.io/badge/Research-25%2B%20Papers-blue)](./research/papers.md)
 [![Industry Validated](https://img.shields.io/badge/Industry-Production%20Proven-green)](./BENCHMARKS.md)
 
@@ -32,34 +33,36 @@ Traditional codebases force agents to repeatedly load large contexts, infer impl
 
 ## How to Use
 
-**Default (simplest): URL-only**
-- Give your AI agent this URL.
-- Start coding immediately.
-- This is enough for short tasks and experiments.
+### Recommended: MCP Server (install once, every project)
 
-**Optional (recommended for long-term projects): Quick Start**
-- Run setup once to add local agent context files.
-- Then collaborate with your AI agent to optimize `AGENTS.md` and architecture layout for your real stack.
+Add to your AI editor config:
 
-## Quick Start
-
+**Claude Code:**
 ```bash
-# Download templates
-curl -fsSL -o AGENTS.md https://raw.githubusercontent.com/xodn348/ai-native/main/templates/AGENTS.md
-curl -fsSL -o tsconfig.json https://raw.githubusercontent.com/xodn348/ai-native/main/templates/tsconfig.json
-curl -fsSL -o architecture.json https://raw.githubusercontent.com/xodn348/ai-native/main/templates/architecture.json
-
-# Organize files
-mkdir -p .ai && mv -f architecture.json .ai/
-
-# Verify setup
-test -f AGENTS.md && test -f tsconfig.json && test -f .ai/architecture.json && echo "✓ Setup complete"
-
-# Ask your AI agent to optimize AGENTS.md for your stack and constraints
-# Example prompt:
-# "Read AGENTS.md and this repo. Rewrite AGENTS.md for Next.js + pnpm + PostgreSQL.
-# Add exact build/test/lint commands and non-negotiable architecture constraints."
+claude mcp add ai-native npx ai-native
 ```
+
+**Claude Desktop / Cursor:**
+```json
+{
+  "mcpServers": {
+    "ai-native": {
+      "command": "npx",
+      "args": ["-y", "ai-native"]
+    }
+  }
+}
+```
+
+Config file locations:
+- Claude Desktop: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Cursor: `.cursor/mcp.json` or global settings
+
+Once configured, your AI agent automatically has access to all AI-native principles, guides, and templates in every project.
+
+### Alternative: URL-Only (per-project)
+
+Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 
 ---
 

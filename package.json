@@ -1,0 +1,46 @@
+{
+  "name": "ai-native",
+  "version": "1.0.0",
+  "description": "Evidence-based guidelines for building codebases optimized for AI agent interaction",
+  "type": "module",
+  "bin": {
+    "ai-native": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "docs",
+    "templates",
+    "research",
+    "experiments",
+    "checklist.md",
+    "BENCHMARKS.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xodn348/ai-native.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "ai",
+    "agent",
+    "mcp",
+    "guidelines",
+    "codebase",
+    "architecture",
+    "typescript"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}
