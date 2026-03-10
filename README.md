@@ -10,21 +10,45 @@
 
 ---
 
-## 🎯 What is "AI-Native"?
+## Why AI-Native?
 
-An **AI-native codebase** is optimized for AI agent interaction:
-- **Navigate** code 900x faster (LSP vs text search)
-- **Understand** architecture without human guidance (graph-based structure)
-- **Generate** correct code with 35% fewer hallucinations (TypeScript + Zod)
-- **Debug** efficiently with clear failure taxonomies (typed errors)
+### The Problem: AI Agents Fail at Search, Not Coding
 
-This is not about "AI-generated code" — it's about structuring codebases so **AI agents become 10x more effective**.
+**72-81% of agent failures are localization failures, not generation failures** on SWE-Bench style tasks where agents cannot find the right files/functions quickly.
+
+Traditional codebases force agents to:
+- Load large irrelevant context windows repeatedly
+- Infer implicit architecture and hidden dependencies
+- Re-scan the same modules across iterations
+
+This is not about "AI-generated code". It is about making your codebase legible to agents so they can assist humans faster and more reliably.
+
+### Quantified Impact and Business Value
+
+| Improvement | Measured Impact | Evidence |
+|---|---:|---|
+| Token usage per task | **23-54% lower** | [SWE-Pruner, 2026](https://arxiv.org/abs/2601.16746) |
+| Code localization accuracy | **+40%** | [Navigation Paradox, 2026](https://arxiv.org/abs/2602.20048) |
+| Critical bug detection | **+67%** | [This repo A/B test](./experiments/semantic-depth-ab-test.md) |
+| Hallucination rate | **-35%** | Industry data in [BENCHMARKS.md](./BENCHMARKS.md) |
+| Correction iterations | **-40%** | [AGENTS.md adoption analysis](./BENCHMARKS.md) |
+
+For a 10-developer team using coding agents daily, these ranges typically map to **$33K-$66K/year API savings** plus **~500 developer-hours/year recovered** (assumption model: 50 prompts/dev/day, 250 workdays, 30-50% context reduction).
+
+### Should this be URL, npm, or something else?
+
+Use a **hybrid strategy**:
+1. **Canonical source = URL** (this repo) for zero-install, always-latest guidance.
+2. **Project-local AGENTS.md** as a thin adapter with project specifics.
+3. Optional **global user-level agent config** for personal defaults, then override per project.
+
+This avoids npm/version overhead while preventing repeated manual setup in every repo.
 
 ---
 
-## ⚡ Quick Start (60 Seconds)
+## Quick Start (60 Seconds)
 
-\`\`\`bash
+```bash
 # 1. Copy templates to your project
 curl -O https://raw.githubusercontent.com/xodn348/ai-native/main/templates/AGENTS.md
 curl -O https://raw.githubusercontent.com/xodn348/ai-native/main/templates/tsconfig.json
@@ -38,38 +62,44 @@ mv architecture.json .ai/
 nano AGENTS.md
 
 # 4. Done! Your codebase is now AI-friendly
-\`\`\`
+```
 
 ---
 
-## 🔑 Core Principle
+## Core Principle
 
 > **"AI agents don't fail at coding — they fail at search, context management, and iterative refinement."**
 
 ### The Three Pillars
 
-| Pillar | Description | Evidence | Impact |
-|--------|-------------|----------|--------|
-| **Navigation > Generation** | Graph-structured architecture with explicit dependencies | [arXiv:2602.20048](https://arxiv.org/abs/2602.20048) | 40% improvement in localization |
-| **Explicit > Implicit** | Descriptive naming, typed errors, documented constraints | Yakubov (2025) - 500 examples | +9% semantic similarity |
-| **Documentation IS Code** | TSDoc + examples, Zod schemas, AGENTS.md | ACL 2024, 60K+ repos | 40% fewer corrections |
+| Pillar | Description |
+|---|---|
+| **Navigation > Generation** | Explicit dependency paths and graph-aware structure reduce search thrash before code generation starts. |
+| **Explicit > Implicit** | Descriptive names, typed errors, and visible constraints reduce semantic guessing. |
+| **Documentation IS Code** | Agent-facing docs (AGENTS.md, schemas, examples) reduce retries and drift. |
+
+See Research & Evidence below for quantitative support.
 
 ---
 
-## 📊 Evidence-Based Results
+## Research & Evidence
 
-All recommendations backed by academic research or production data:
+### Navigation and Architecture
+- **Graph navigation over naive retrieval**: +40% localization accuracy ([arXiv:2602.20048](https://arxiv.org/abs/2602.20048)).
+- **LSP-first lookup**: ~900x faster symbol resolution (50ms vs 45s) in practical workflows (Amir Teymoori, 2025).
+- **Semantic depth (LM-CC)**: -0.73 to -0.95 correlation with agent success (Xie et al., 2026; summarized in [BENCHMARKS.md](./BENCHMARKS.md)).
 
-| Pattern | Source | Measurement | Result |
-|---------|--------|-------------|--------|
-| **Graph navigation** | Navigation Paradox (2026) | Code localization accuracy | 40% improvement |
-| **Descriptive naming** | Yakubov (2025) | Semantic similarity | +9% vs minimal names |
-| **TypeScript + Zod** | Industry study (2026) | Hallucination rate | 35% reduction |
-| **AGENTS.md standard** | 60,000+ repos | Correction iterations | 40% reduction |
-| **Context positioning** | Chroma Research (2025) | Accuracy drop | 20+ points when info buried |
-| **Semantic depth** | Xie et al. (2026) | AI success correlation | -0.73 to -0.95 |
-| **LSP integration** | Amir Teymoori (2025) | Search speed | 900x faster (50ms vs 45s) |
-| **Debugging limit** | Nature (2025) | Effectiveness decay | 60-80% lost by 3rd attempt |
+### Naming and Documentation
+- **Descriptive naming**: +9% semantic similarity and higher first-attempt accuracy (Yakubov, 2025; [BENCHMARKS.md](./BENCHMARKS.md)).
+- **AGENTS.md standardization**: ~40% fewer correction iterations in large-scale adoption analyses ([openai/agents.md](https://github.com/openai/agents.md)).
+
+### Type Safety and Validation
+- **TypeScript + schema validation**: ~35% lower hallucination/error rate in integration-heavy tasks (industry benchmark summary in [BENCHMARKS.md](./BENCHMARKS.md)).
+
+### Context and Debugging Efficiency
+- **Context placement effect**: 20+ point accuracy drop when critical details are buried mid-context ([Chroma Context Rot, 2025](https://research.trychroma.com/context-rot)).
+- **Debugging decay**: 60-80% effectiveness loss after repeated failed attempts (Nature report summary in [BENCHMARKS.md](./BENCHMARKS.md)).
+- **Token-optimized representations**: 85.5% token reduction for API specs in LLM contexts ([LAPIS, 2026](https://arxiv.org/abs/2602.18541)).
 
 ---
 
