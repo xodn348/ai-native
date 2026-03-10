@@ -19,7 +19,7 @@ Traditional codebases force agents to repeatedly load large contexts, infer impl
 ### Reported Impact (Context-Dependent)
 
 | Improvement | Range | Source |
-|---|---:|---|
+|---|---|---|
 | Token usage per task | **-23 to -54%** | [SWE-Pruner](https://arxiv.org/abs/2601.16746) |
 | Code localization | **+40%** | [Navigation Paradox](https://arxiv.org/abs/2602.20048) |
 | Critical bug detection | **0 to +67%** (internal replication) | [Our A/B test](./experiments/semantic-depth-ab-test.md) |
