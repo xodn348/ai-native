@@ -4,7 +4,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { fileURLToPath } from 'node:url';
-import { readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import * as path from 'node:path';
 
 const toolResponse = (text: string) => ({
@@ -59,17 +60,122 @@ function verifyContentFiles(): void {
   }
 }
 
+function upsertJsonServer(filePath: string): void {
+  mkdirSync(path.dirname(filePath), { recursive: true });
+
+  let data: Record<string, unknown> = {};
+  if (existsSync(filePath)) {
+    const raw = readFileSync(filePath, 'utf-8').trim();
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        data = parsed as Record<string, unknown>;
+      }
+    }
+  }
+
+  const existingServers = data.mcpServers;
+  const servers =
+    existingServers && typeof existingServers === 'object' && !Array.isArray(existingServers)
+      ? (existingServers as Record<string, unknown>)
+      : {};
+
+  servers['ai-native'] = {
+    command: 'npx',
+    args: ['-y', 'ai-native'],
+  };
+
+  data.mcpServers = servers;
+  writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf-8');
+}
+
+function upsertCodexToml(filePath: string): void {
+  mkdirSync(path.dirname(filePath), { recursive: true });
+  const sectionHeader = '[mcp_servers.ai-native]';
+  const block = [sectionHeader, 'command = "npx"', 'args = ["-y", "ai-native"]', ''];
+
+  const lines = existsSync(filePath) ? readFileSync(filePath, 'utf-8').split(/\r?\n/) : [];
+  const start = lines.findIndex((line) => line.trim() === sectionHeader);
+
+  if (start === -1) {
+    if (lines.length > 0 && lines[lines.length - 1].trim() !== '') {
+      lines.push('');
+    }
+    lines.push(...block);
+  } else {
+    let end = lines.length;
+    for (let i = start + 1; i < lines.length; i += 1) {
+      if (/^\s*\[/.test(lines[i])) {
+        end = i;
+        break;
+      }
+    }
+    lines.splice(start, end - start, ...block);
+  }
+
+  writeFileSync(filePath, `${lines.join('\n').replace(/\n+$/, '\n')}`, 'utf-8');
+}
+
+function runSetup(): void {
+  const home = process.env.HOME;
+  if (!home) {
+    throw new Error('HOME is not set. Cannot determine config directories.');
+  }
+
+  const claudeAdd = spawnSync('claude', ['mcp', 'add', 'ai-native', '--', 'npx', '-y', 'ai-native'], {
+    stdio: 'ignore',
+  });
+
+  if (!claudeAdd.error && claudeAdd.status === 0) {
+    console.error('[ai-native setup] Configured Claude Code via CLI.');
+  } else {
+    console.error('[ai-native setup] Claude CLI not found or add failed. Skipping Claude Code.');
+  }
+
+  const claudeDesktopConfig = path.join(home, 'Library', 'Application Support', 'Claude', 'claude_desktop_config.json');
+  upsertJsonServer(claudeDesktopConfig);
+  console.error(`[ai-native setup] Configured Claude Desktop MCP config at ${claudeDesktopConfig}.`);
+
+  const cursorConfig = path.join(home, '.cursor', 'mcp.json');
+  upsertJsonServer(cursorConfig);
+  console.error(`[ai-native setup] Configured Cursor global MCP config at ${cursorConfig}.`);
+
+  const codexConfig = path.join(home, '.codex', 'config.toml');
+  upsertCodexToml(codexConfig);
+  console.error(`[ai-native setup] Configured Codex CLI MCP config at ${codexConfig}.`);
+
+  console.error('[ai-native setup] Done. Restart your AI clients to reload MCP configs.');
+}
+
+function printUsage(): void {
+  console.error(`ai-native MCP Server
+
+Commands:
+  npx -y ai-native setup
+    Auto-configure MCP for Claude Code, Claude Desktop, Cursor, and Codex CLI.
+
+  npx -y ai-native
+    Run stdio MCP server (used by AI clients).
+
+Manual config value:
+  { "mcpServers": { "ai-native": { "command": "npx", "args": ["-y", "ai-native"] } } }`);
+}
+
 async function main(): Promise<void> {
+  const command = process.argv[2];
+
+  if (command === 'setup') {
+    runSetup();
+    return;
+  }
+
+  if (command === 'help' || command === '--help' || command === '-h') {
+    printUsage();
+    return;
+  }
+
   if (process.stdin.isTTY || process.stdout.isTTY) {
-    console.error(`ai-native MCP Server
-
-This is an MCP server. Add it to your AI editor:
-
-Claude Code:   claude mcp add ai-native npx ai-native
-Claude Desktop: Add to claude_desktop_config.json
-Cursor:        Add to .cursor/mcp.json
-
-Config: { "mcpServers": { "ai-native": { "command": "npx", "args": ["-y", "ai-native"] } } }`);
+    printUsage();
     return;
   }
 

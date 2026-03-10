@@ -35,14 +35,30 @@ Traditional codebases force agents to repeatedly load large contexts, infer impl
 
 ### Recommended: MCP Server (install once, every project)
 
-Add to your AI editor config:
+Run one npm command to auto-configure common AI clients on your machine:
+
+```bash
+npx -y ai-native setup
+```
+
+This installer adds `ai-native` MCP config for:
+- Claude Code
+- Claude Desktop
+- Cursor
+- Codex CLI
+
+After setup, restart your AI client. `ai-native` is then available automatically in every project.
+
+Requires Node.js 18+.
+
+### Manual setup (if you prefer explicit config)
 
 **Claude Code:**
 ```bash
-claude mcp add ai-native npx ai-native
+claude mcp add ai-native -- npx -y ai-native
 ```
 
-**Claude Desktop / Cursor:**
+**Claude Desktop / Cursor (`mcpServers` JSON):**
 ```json
 {
   "mcpServers": {
@@ -54,11 +70,17 @@ claude mcp add ai-native npx ai-native
 }
 ```
 
-Config file locations:
-- Claude Desktop: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Cursor: `.cursor/mcp.json` or global settings
+**Codex CLI (`~/.codex/config.toml`):**
+```toml
+[mcp_servers.ai-native]
+command = "npx"
+args = ["-y", "ai-native"]
+```
 
-Once configured, your AI agent automatically has access to all AI-native principles, guides, and templates in every project.
+Common config locations:
+- Claude Desktop: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- Cursor (global): `~/.cursor/mcp.json`
+- Codex CLI: `~/.codex/config.toml`
 
 ### Alternative: URL-Only (per-project)
 
