@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import * as path from 'node:path';
+import { createRequire } from 'node:module';
 
 const toolResponse = (text: string) => ({
   content: [{ type: 'text' as const, text }],
@@ -29,6 +30,11 @@ const rootHasDocs = (() => {
 })();
 
 const contentRoot = rootHasDocs ? contentRootCandidate : fallbackContentRoot;
+
+// Read version from package.json
+const require = createRequire(import.meta.url);
+const packageJson = require('../package.json');
+const version = packageJson.version;
 
 const requiredContentFiles = [
   'docs/principles/architecture.md',
@@ -183,7 +189,7 @@ async function main(): Promise<void> {
 
   const server = new McpServer({
     name: 'ai-native',
-    version: '1.0.0',
+    version,
   });
 
   server.registerTool(
