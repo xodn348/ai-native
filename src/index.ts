@@ -8,6 +8,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import * as path from 'node:path';
 import { createRequire } from 'node:module';
+import os from 'node:os';
 
 const toolResponse = (text: string) => ({
   content: [{ type: 'text' as const, text }],
@@ -150,6 +151,18 @@ function runSetup(): void {
   upsertCodexToml(codexConfig);
   console.error(`[ai-native setup] Configured Codex CLI MCP config at ${codexConfig}.`);
 
+  // Claude Code global rules
+  try {
+    const claudeRulesDir = path.join(os.homedir(), '.claude', 'rules');
+    mkdirSync(claudeRulesDir, { recursive: true });
+    const claudeRulesFile = path.join(claudeRulesDir, 'ai-native.md');
+    writeFileSync(claudeRulesFile, generateClaudeRules(), 'utf-8');
+    console.error(`[ai-native setup] Created global rules at ${claudeRulesFile}.`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[ai-native setup] Warning: Failed to create global rules file: ${message}`);
+  }
+
   console.error('[ai-native setup] Done. Restart your AI clients to reload MCP configs.');
 }
 
@@ -221,12 +234,84 @@ export function generateAgentsMdSection(): string {
   return constitution;
 }
 
+function runInit(): void {
+  const cwd = process.cwd();
+  
+  // Warn if running in home directory
+  if (cwd === os.homedir()) {
+    console.error('[ai-native init] Warning: Running in home directory. This will create rules files in ~/ which is probably not intended.');
+  }
+
+  // 1. Create .claude/rules/ai-native.md
+  try {
+    const claudeRulesDir = path.join(cwd, '.claude', 'rules');
+    mkdirSync(claudeRulesDir, { recursive: true });
+    const claudeRulesFile = path.join(claudeRulesDir, 'ai-native.md');
+    writeFileSync(claudeRulesFile, generateClaudeRules(), 'utf-8');
+    console.error(`[ai-native init] Created ${path.relative(cwd, claudeRulesFile)}`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[ai-native init] Warning: Failed to create .claude/rules/ai-native.md: ${message}`);
+  }
+
+  // 2. Create .cursor/rules/ai-native.mdc
+  try {
+    const cursorRulesDir = path.join(cwd, '.cursor', 'rules');
+    mkdirSync(cursorRulesDir, { recursive: true });
+    const cursorRulesFile = path.join(cursorRulesDir, 'ai-native.mdc');
+    writeFileSync(cursorRulesFile, generateCursorRules(), 'utf-8');
+    console.error(`[ai-native init] Created ${path.relative(cwd, cursorRulesFile)}`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[ai-native init] Warning: Failed to create .cursor/rules/ai-native.mdc: ${message}`);
+  }
+
+  // 3. Create .windsurf/rules/ai-native.md
+  try {
+    const windsurfRulesDir = path.join(cwd, '.windsurf', 'rules');
+    mkdirSync(windsurfRulesDir, { recursive: true });
+    const windsurfRulesFile = path.join(windsurfRulesDir, 'ai-native.md');
+    writeFileSync(windsurfRulesFile, generateWindsurfRules(), 'utf-8');
+    console.error(`[ai-native init] Created ${path.relative(cwd, windsurfRulesFile)}`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[ai-native init] Warning: Failed to create .windsurf/rules/ai-native.md: ${message}`);
+  }
+
+  // 4. Append to AGENTS.md (idempotent)
+  try {
+    const agentsMdFile = path.join(cwd, 'AGENTS.md');
+    const section = generateAgentsMdSection();
+    
+    if (existsSync(agentsMdFile)) {
+      const content = readFileSync(agentsMdFile, 'utf-8');
+      if (content.includes('# AI-Native Coding Principles')) {
+        console.error('[ai-native init] AGENTS.md already contains ai-native section, skipping.');
+      } else {
+        writeFileSync(agentsMdFile, content + '\n\n' + section, 'utf-8');
+        console.error(`[ai-native init] Appended ai-native section to ${path.relative(cwd, agentsMdFile)}`);
+      }
+    } else {
+      writeFileSync(agentsMdFile, section, 'utf-8');
+      console.error(`[ai-native init] Created ${path.relative(cwd, agentsMdFile)}`);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[ai-native init] Warning: Failed to update AGENTS.md: ${message}`);
+  }
+
+  console.error('[ai-native init] Done. Per-project rules files created.');
+}
+
 function printUsage(): void {
   console.error(`ai-native MCP Server
 
 Commands:
   npx -y ai-native setup
     Auto-configure MCP for Claude Code, Claude Desktop, Cursor, and Codex CLI.
+
+  npx -y ai-native init
+    Create per-project rules files (.claude/rules, .cursor/rules, .windsurf/rules, AGENTS.md).
 
   npx -y ai-native
     Run stdio MCP server (used by AI clients).
@@ -240,6 +325,11 @@ async function main(): Promise<void> {
 
   if (command === 'setup') {
     runSetup();
+    return;
+  }
+
+  if (command === 'init') {
+    runInit();
     return;
   }
 
