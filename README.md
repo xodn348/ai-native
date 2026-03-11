@@ -43,15 +43,20 @@ npx -y ai-native setup
 
 This command:
 - Registers `ai-native` MCP server with Claude Code, Claude Desktop, Cursor, and Codex CLI
-- Creates `~/.claude/rules/ai-native.md` (global rules for Claude Code, code-files-only)
+- Creates `~/.claude/rules/ai-native.md` (global rules for **Claude Code only**, code-files-only)
 
-After setup, restart your AI clients. The constitution applies automatically when working with code files.
+**After setup:**
+- **Claude Code users**: Restart Claude Code. Constitution applies automatically to all projects.
+- **Cursor/Windsurf/OpenCode users**: Run `init` in each project (see below).
 
 Requires Node.js 18+.
 
-### Per-Project Setup (Optional)
+### Per-Project Setup
 
-For team sharing or Cursor/Windsurf/OpenCode users:
+**Required for**: Cursor, Windsurf, OpenCode  
+**Optional for**: Claude Code (for team sharing via git)
+
+Run in your project directory:
 
 ```bash
 npx -y ai-native init
@@ -71,11 +76,13 @@ Commit these files to share with your team.
 ### Two-Layer Architecture
 
 **Layer 1 (Always-On)**: 40-line constitution in rules files (~600 tokens/prompt)
-- Auto-loaded by AI clients at session start
+- Auto-loaded by supported clients (Claude Code, Cursor, Windsurf, OpenCode) at session start
 - Activates only for code files (via `paths:`/`globs:` frontmatter)
 - 5 highest-impact principles: naming, type safety, functions, errors, architecture
+- **No MCP required** — works via native rules file support
 
 **Layer 2 (On-Demand)**: 16 files (4000+ lines) via MCP tools
+- **Requires MCP server** (configured via `setup` command)
 - Called when triggered by constitution (e.g., `get_checklist()` before creating new modules)
 - Comprehensive deep dives on specific topics
 - Research citations, examples, benchmarks
