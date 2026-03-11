@@ -83,7 +83,8 @@ Commit these files to share with your team.
 
 **Layer 2 (On-Demand)**: 16 files (4000+ lines) via MCP tools
 - **Requires MCP server** (configured via `setup` command)
-- Called when triggered by constitution (e.g., `get_checklist()` before creating new modules)
+- **Auto-triggered only in Claude Code** when creating new files/modules
+- Other cases: Layer 1 (40 lines) applies automatically
 - Comprehensive deep dives on specific topics
 - Research citations, examples, benchmarks
 
