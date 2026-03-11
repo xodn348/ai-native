@@ -88,6 +88,18 @@ Commit these files to share with your team.
 - Comprehensive deep dives on specific topics
 - Research citations, examples, benchmarks
 
+### Why This Is Efficient
+
+**Selective activation** = zero token waste:
+
+- **Coding** (`.ts`, `.py`, `.java`, etc.) → 40-line constitution loads (~600 tokens)
+- **Everything else** (chat, docs, planning) → No constitution loaded (0 tokens)
+- **New files/modules** (Claude Code only) → Layer 2 triggers for deep guidance
+
+Traditional approach: Every prompt loads full guidelines (4000+ tokens), even for "fix this typo."
+
+This approach: Guidelines activate only when writing code. Rest of the time, clean context.
+
 ### Updating
 
 To get the latest constitution:
