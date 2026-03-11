@@ -33,25 +33,65 @@ Traditional codebases force agents to repeatedly load large contexts, infer impl
 
 ## How to Use
 
-### Recommended: MCP Server (install once, every project)
+### Quick Start: One-Time Setup (Recommended)
 
-Run one npm command to auto-configure common AI clients on your machine:
+Run once to configure AI clients globally:
 
 ```bash
 npx -y ai-native setup
 ```
 
-This installer adds `ai-native` MCP config for:
-- Claude Code
-- Claude Desktop
-- Cursor
-- Codex CLI
+This command:
+- Registers `ai-native` MCP server with Claude Code, Claude Desktop, Cursor, and Codex CLI
+- Creates `~/.claude/rules/ai-native.md` (global rules for Claude Code, code-files-only)
 
-After setup, restart your AI client. `ai-native` is then available automatically in every project.
+After setup, restart your AI clients. The constitution applies automatically when working with code files.
 
 Requires Node.js 18+.
 
-### Manual setup (if you prefer explicit config)
+### Per-Project Setup (Optional)
+
+For team sharing or Cursor/Windsurf/OpenCode users:
+
+```bash
+npx -y ai-native init
+```
+
+Creates 4 files in your project:
+
+| Client | File | Features |
+|--------|------|----------|
+| Claude Code | `.claude/rules/ai-native.md` | `paths:` frontmatter (code-only) |
+| Cursor | `.cursor/rules/ai-native.mdc` | `alwaysApply: true` |
+| Windsurf | `.windsurf/rules/ai-native.md` | Plain markdown |
+| OpenCode | `AGENTS.md` | Appended section (idempotent) |
+
+Commit these files to share with your team.
+
+### Two-Layer Architecture
+
+**Layer 1 (Always-On)**: 40-line constitution in rules files (~600 tokens/prompt)
+- Auto-loaded by AI clients at session start
+- Activates only for code files (via `paths:`/`globs:` frontmatter)
+- 5 highest-impact principles: naming, type safety, functions, errors, architecture
+
+**Layer 2 (On-Demand)**: 16 files (4000+ lines) via MCP tools
+- Called when triggered by constitution (e.g., `get_checklist()` before creating new modules)
+- Comprehensive deep dives on specific topics
+- Research citations, examples, benchmarks
+
+### Updating
+
+To get the latest constitution:
+
+```bash
+npx -y ai-native setup  # Updates global rules
+npx -y ai-native init   # Updates project rules
+```
+
+### Advanced: MCP Server
+
+**Manual MCP Configuration** (if you prefer explicit config):
 
 **Claude Code:**
 ```bash
@@ -82,7 +122,7 @@ Common config locations:
 - Cursor (global): `~/.cursor/mcp.json`
 - Codex CLI: `~/.codex/config.toml`
 
-### Alternative: URL-Only (per-project)
+**Alternative: URL-Only** (per-project, no installation):
 
 Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 
