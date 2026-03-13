@@ -19,7 +19,7 @@ describe('init command', () => {
     }
   });
 
-  it('should create all 4 files in empty directory', () => {
+  it('should create all 5 files in empty directory', () => {
     const result = spawnSync('node', [distPath, 'init'], {
       cwd: testDir,
       encoding: 'utf-8',
@@ -29,6 +29,7 @@ describe('init command', () => {
     expect(existsSync(join(testDir, '.claude', 'rules', 'ai-native.md'))).toBe(true);
     expect(existsSync(join(testDir, '.cursor', 'rules', 'ai-native.mdc'))).toBe(true);
     expect(existsSync(join(testDir, '.windsurf', 'rules', 'ai-native.md'))).toBe(true);
+    expect(existsSync(join(testDir, '.codex', 'ai-native.md'))).toBe(true);
     expect(existsSync(join(testDir, 'AGENTS.md'))).toBe(true);
   });
 
@@ -57,6 +58,19 @@ describe('init command', () => {
     
     expect(content).toMatch(/^---\npaths:/);
     expect(content).toContain('# AI-Native Coding Principles');
+  });
+
+  it('should create .codex/ai-native.md with constitution (no frontmatter)', () => {
+    spawnSync('node', [distPath, 'init'], {
+      cwd: testDir,
+      encoding: 'utf-8',
+    });
+
+    const codexRulesFile = join(testDir, '.codex', 'ai-native.md');
+    const content = readFileSync(codexRulesFile, 'utf-8');
+
+    expect(content).not.toMatch(/^---/);
+    expect(content).toMatch(/^# AI-Native Coding Principles/);
   });
 
   it('should create .windsurf/rules/ai-native.md without frontmatter', () => {

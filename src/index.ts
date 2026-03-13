@@ -281,6 +281,10 @@ export function generateWindsurfRules(): string {
   return getConstitution();
 }
 
+export function generateCodexRules(): string {
+  return getConstitution();
+}
+
 export function generateAgentsMdSection(): string {
   const constitution = getConstitution();
   return constitution;
@@ -502,13 +506,13 @@ function runInit(): void {
     console.error('[ai-native init] Warning: Running in home directory. This will create rules files in ~/ which is probably not intended.');
   }
 
-  // 1. Create .claude/rules/ai-native.md
+  // 1. Create .claude/rules/ai-native.md (Claude Code + Claude Desktop)
   try {
     const claudeRulesDir = path.join(cwd, '.claude', 'rules');
     mkdirSync(claudeRulesDir, { recursive: true });
     const claudeRulesFile = path.join(claudeRulesDir, 'ai-native.md');
     writeFileSync(claudeRulesFile, generateClaudeRules(), 'utf-8');
-    console.error(`[ai-native init] Created ${path.relative(cwd, claudeRulesFile)}`);
+    console.error(`[ai-native init] Created ${path.relative(cwd, claudeRulesFile)} (Claude Code / Claude Desktop)`);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error(`[ai-native init] Warning: Failed to create .claude/rules/ai-native.md: ${message}`);
@@ -538,7 +542,19 @@ function runInit(): void {
     console.error(`[ai-native init] Warning: Failed to create .windsurf/rules/ai-native.md: ${message}`);
   }
 
-  // 4. Append to AGENTS.md (idempotent)
+  // 4. Create .codex/ai-native.md (Codex CLI)
+  try {
+    const codexRulesDir = path.join(cwd, '.codex');
+    mkdirSync(codexRulesDir, { recursive: true });
+    const codexRulesFile = path.join(codexRulesDir, 'ai-native.md');
+    writeFileSync(codexRulesFile, generateCodexRules(), 'utf-8');
+    console.error(`[ai-native init] Created ${path.relative(cwd, codexRulesFile)}`);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`[ai-native init] Warning: Failed to create .codex/ai-native.md: ${message}`);
+  }
+
+  // 5. Append to AGENTS.md (idempotent)
   try {
     const agentsMdFile = path.join(cwd, 'AGENTS.md');
     const packageInfo = parsePackageJson(cwd);
@@ -562,7 +578,7 @@ function runInit(): void {
     console.error(`[ai-native init] Warning: Failed to update AGENTS.md: ${message}`);
   }
 
-  console.error('[ai-native init] Done. Per-project rules files created.');
+  console.error('[ai-native init] Done. Per-project rules files created for Claude Code, Claude Desktop, Cursor, Windsurf, Codex, and OpenCode.');
 }
 
 function printUsage(): void {
@@ -573,7 +589,7 @@ Commands:
     Auto-configure MCP for Claude Code, Claude Desktop, Cursor, and Codex CLI.
 
   npx -y ai-native init
-    Create per-project rules files (.claude/rules, .cursor/rules, .windsurf/rules, AGENTS.md).
+    Create per-project rules files (.claude/rules, .cursor/rules, .windsurf/rules, .codex, AGENTS.md).
 
   npx -y ai-native
     Run stdio MCP server (used by AI clients).
