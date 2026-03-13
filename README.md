@@ -233,6 +233,10 @@ Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 <details>
 <summary><strong>Changelog</strong></summary>
 
+### 2.3.2
+
+- docs: fix Smart Init Details — remove outdated AGENTS.md reference
+
 ### 2.3.1
 
 - feat: automate README changelog on npm version
