@@ -220,6 +220,10 @@ Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 <details>
 <summary><strong>Changelog</strong></summary>
 
+### 2.3.5
+
+- feat: ai-native setup now installs codesure automatically
+
 ### 2.3.4
 
 - fix: remove AGENTS.md instruction from constitution, atomic upsert for shared JSON configs

@@ -1,6 +1,6 @@
 {
   "name": "ai-native",
-  "version": "2.3.4",
+  "version": "2.3.5",
   "description": "Evidence-based guidelines for building codebases optimized for AI agent interaction",
   "type": "module",
   "bin": {
