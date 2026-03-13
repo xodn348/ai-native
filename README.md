@@ -29,7 +29,8 @@ Traditional codebases force agents to repeatedly load large contexts, infer impl
 
 **Illustrative ROI (10 developers)**: $33K–$66K/year API savings + ~500 hours/year recovered.
 
-## What's New in v2
+<details>
+<summary><strong>What's New in v2</strong></summary>
 
 ### Constitution Strengthened (40 → 66 lines)
 
@@ -52,15 +53,12 @@ v1 constitution was soft suggestion — AI agents frequently ignored Layer 2 MCP
 | Node version | `package.json` → `engines.node` | `>=18` |
 | TS config | `tsconfig.json` (JSONC-safe) | `strict: true`, `target: ES2022` |
 
-- **Smart mode**: When `package.json` or `tsconfig.json` exists — auto-fills reliable fields, leaves placeholders for uncertain ones
-- **Fallback mode**: When neither exists — uses the template with all placeholders
-- **JSONC parsing**: Safely handles `tsconfig.json` with comments (`//`, `/* */`) and trailing commas
-- **Idempotent**: `<!-- ai-native:managed -->` marker prevents duplicate sections on re-run
-
 ### Breaking Changes
 
 - Constitution line count increased (40 → 66) — slightly higher per-prompt token cost (~900 → ~1100 tokens)
 - `getConstitution()` return value changed — if you consume the API directly, update accordingly
+
+</details>
 
 ---
 
@@ -95,21 +93,23 @@ Run in your project directory:
 npx -y ai-native init
 ```
 
-Creates 4 files in your project:
+Creates per-project rules files:
 
 | Client | File | Features |
 |--------|------|----------|
-| Claude Code | `.claude/rules/ai-native.md` | `paths:` frontmatter (code-only) |
+| Claude Code / Claude Desktop | `.claude/rules/ai-native.md` | `paths:` frontmatter (code-only) |
 | Cursor | `.cursor/rules/ai-native.mdc` | `alwaysApply: true` |
 | Windsurf | `.windsurf/rules/ai-native.md` | Plain markdown |
+| Codex | `.codex/ai-native.md` | Plain markdown |
 | OpenCode | `AGENTS.md` | Appended section (idempotent) |
 
 Commit these files to share with your team.
 
-### Two-Layer Architecture
+<details>
+<summary><strong>Two-Layer Architecture</strong></summary>
 
 **Layer 1 (Always-On)**: 60-80 line constitution in rules files (~900-1200 tokens/prompt)
-- Auto-loaded by supported clients (Claude Code, Cursor, Windsurf, OpenCode) at session start
+- Auto-loaded by supported clients at session start
 - Activates only for code files (via `paths:`/`globs:` frontmatter)
 - Includes enforcement gates for naming, type safety, functions, errors, docs, architecture, verification
 - **No MCP required** — works via native rules file support
@@ -117,11 +117,8 @@ Commit these files to share with your team.
 **Layer 2 (On-Demand)**: 16 files (4000+ lines) via MCP tools
 - **Requires MCP server** (configured via `setup` command)
 - **Auto-triggered only in Claude Code** when creating new files/modules
-- Other cases: Layer 1 applies automatically
 - Comprehensive deep dives on specific topics
 - Research citations, examples, benchmarks
-
-### Why This Is Efficient
 
 **Selective activation** = zero token waste:
 
@@ -129,22 +126,12 @@ Commit these files to share with your team.
 - **Everything else** (chat, docs, planning) → No constitution loaded (0 tokens)
 - **New files/modules** (Claude Code only) → Layer 2 triggers for deep guidance
 
-Traditional approach: Every prompt loads full guidelines (4000+ tokens), even for "fix this typo."
+</details>
 
-This approach: Guidelines activate only when writing code. Rest of the time, clean context.
+<details>
+<summary><strong>Smart Init Details</strong></summary>
 
-### Updating
-
-To get the latest constitution:
-
-```bash
-npx -y ai-native setup  # Updates global rules
-npx -y ai-native init   # Updates project rules
-```
-
-### Smart Init Details
-
-Running `npx -y ai-native init` now creates AGENTS.md in one of two modes:
+Running `npx -y ai-native init` creates AGENTS.md in one of two modes:
 
 - **Smart mode** (when `package.json` or `tsconfig.json` exists):
   - Auto-detects package manager, runtime, framework, and scripts
@@ -153,11 +140,17 @@ Running `npx -y ai-native init` now creates AGENTS.md in one of two modes:
 - **Fallback mode** (when neither file exists):
   - Uses the AGENTS template with placeholders
 
-This is backward compatible with existing `setup` and `init` workflows.
+To update to the latest constitution:
 
-### Advanced: MCP Server
+```bash
+npx -y ai-native setup  # Updates global rules
+npx -y ai-native init   # Updates project rules
+```
 
-**Manual MCP Configuration** (if you prefer explicit config):
+</details>
+
+<details>
+<summary><strong>Manual MCP Configuration</strong></summary>
 
 **Claude Code:**
 ```bash
@@ -192,6 +185,8 @@ Common config locations:
 
 Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 
+</details>
+
 ---
 
 ## Core Principles
@@ -206,7 +201,8 @@ Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 
 ---
 
-## Research & Evidence
+<details>
+<summary><strong>Research & Evidence</strong></summary>
 
 **Navigation & Architecture**
 - Graph navigation: +40% localization vs retrieval ([arXiv:2602.20048](https://arxiv.org/abs/2602.20048))
@@ -222,6 +218,8 @@ Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 - Context placement: -20+ points when info buried mid-context ([Chroma 2025](https://research.trychroma.com/context-rot))
 - Token optimization: -85.5% for API specs ([LAPIS](https://arxiv.org/abs/2602.18541))
 
+</details>
+
 ---
 
 ## Documentation
@@ -233,7 +231,13 @@ Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 
 **Evidence-informed, not prompt folklore.** Treat headline metrics as directional until replicated in your codebase.
 
-## Changelog
+<details>
+<summary><strong>Changelog</strong></summary>
+
+### 2.1.0
+
+- **feat**: Add Codex and Claude Desktop support to `init` command (`.codex/ai-native.md`)
+- **test**: 74 tests
 
 ### 2.0.0
 
@@ -255,3 +259,5 @@ Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 ### 1.0.0
 
 - Initial release. Two-layer architecture, MCP server, setup/init commands, 16 guideline files.
+
+</details>
