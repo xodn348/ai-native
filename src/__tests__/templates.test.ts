@@ -88,6 +88,6 @@ describe('constitution and rules generation', () => {
     expect(content).toContain('**Framework**: next');
     expect(content).toContain('pnpm build');
     expect(content).toContain('**Strict mode**: Enabled');
-    expect(content).toContain('# AI-Native Coding Principles');
+    expect(content).not.toContain('# AI-Native Coding Principles');
   });
 });

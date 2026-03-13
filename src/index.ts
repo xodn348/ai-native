@@ -495,8 +495,7 @@ ${safeValue(packageInfo?.scripts.typecheck, '[your typecheck command]')}
 - **Target**: ${tsConfigInfo?.target ?? '[ES2022/ESNext/etc]'}
 - **NO \`any\` type** (use \`unknown\` and narrow)
 - **Explicit return types** for exported functions
-
-${getConstitution()}`;
+`;
 }
 
 function runInit(): void {
