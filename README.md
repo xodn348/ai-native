@@ -40,19 +40,6 @@ v1 constitution was soft suggestion — AI agents frequently ignored Layer 2 MCP
 - **NEVER**: `any` type, `@ts-ignore`, empty catch blocks, `console.log` in production
 - New sections: Documentation Gates, Verification Gates, Security Gates, Context Optimization
 
-### Smart Init
-
-`npx ai-native init` now auto-detects your project and fills AGENTS.md with real data:
-
-| Detected | Source | Example output |
-|----------|--------|---------------|
-| Package manager | `package.json` → `packageManager` field, lockfile | `bun`, `pnpm`, `yarn` |
-| Runtime | `package.json` → `engines`, dependencies | `bun`, `node 18+` |
-| Framework | `package.json` → dependencies | `next.js`, `express`, `fastapi` |
-| Scripts | `package.json` → `scripts` | `build: tsc`, `test: vitest` |
-| Node version | `package.json` → `engines.node` | `>=18` |
-| TS config | `tsconfig.json` (JSONC-safe) | `strict: true`, `target: ES2022` |
-
 ### Breaking Changes
 
 - Constitution line count increased (40 → 66) — slightly higher per-prompt token cost (~900 → ~1100 tokens)
