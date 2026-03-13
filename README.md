@@ -233,6 +233,17 @@ Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 <details>
 <summary><strong>Changelog</strong></summary>
 
+### 2.3.0
+
+- feat!: remove AGENTS.md generation from init
+- feat: remove constitution from AGENTS.md to eliminate triple injection
+- feat: add README collapsible sections rule to constitution
+- docs: collapse secondary sections with details tags, update init client table
+- feat: add Codex and Claude Desktop support to init command
+- Merge feat/v2: ai-native v2.0.0 — strengthened constitution + smart init
+- docs: add detailed v2 changelog and smart init documentation
+- feat!: strengthen constitution and add smart init for AGENTS.md
+
 ### 2.1.0
 
 - **feat**: Add Codex and Claude Desktop support to `init` command (`.codex/ai-native.md`)

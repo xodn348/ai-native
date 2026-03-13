@@ -21,7 +21,8 @@
   "scripts": {
     "build": "tsc && chmod +x dist/index.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "version": "node scripts/update-readme.js && git add README.md"
   },
   "repository": {
     "type": "git",
