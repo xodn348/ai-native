@@ -220,6 +220,10 @@ Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 <details>
 <summary><strong>Changelog</strong></summary>
 
+### 2.3.3
+
+- docs: remove outdated Smart Init section from What's New in v2
+
 ### 2.3.2
 
 - docs: fix Smart Init Details — remove outdated AGENTS.md reference
