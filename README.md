@@ -128,16 +128,16 @@ Commit these files to share with your team.
 </details>
 
 <details>
-<summary><strong>Smart Init Details</strong></summary>
+<summary><strong>Init Details</strong></summary>
 
-Running `npx -y ai-native init` creates AGENTS.md in one of two modes:
+`npx -y ai-native init` creates 4 rules files with the latest constitution. Existing files are overwritten with the current version.
 
-- **Smart mode** (when `package.json` or `tsconfig.json` exists):
-  - Auto-detects package manager, runtime, framework, and scripts
-  - Parses JSONC-style `tsconfig.json` safely (comments and trailing commas)
-  - Fills only reliable fields and keeps placeholders for uncertain project-specific details
-- **Fallback mode** (when neither file exists):
-  - Uses the AGENTS template with placeholders
+| File | Content |
+|------|---------|
+| `.claude/rules/ai-native.md` | Constitution + `paths:` frontmatter (code-only activation) |
+| `.cursor/rules/ai-native.mdc` | Constitution + `alwaysApply: true` frontmatter |
+| `.windsurf/rules/ai-native.md` | Constitution, plain markdown |
+| `.codex/ai-native.md` | Constitution, plain markdown |
 
 To update to the latest constitution:
 
