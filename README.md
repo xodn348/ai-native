@@ -29,6 +29,39 @@ Traditional codebases force agents to repeatedly load large contexts, infer impl
 
 **Illustrative ROI (10 developers)**: $33K–$66K/year API savings + ~500 hours/year recovered.
 
+## What's New in v2
+
+### Constitution Strengthened (40 → 66 lines)
+
+v1 constitution was soft suggestion — AI agents frequently ignored Layer 2 MCP tool calls. v2 embeds critical rules directly in Layer 1 with MUST/NEVER enforcement language:
+
+- **MUST**: `AGENTS.md` bootstrap, typed domain errors, explicit return types, TSDoc on public APIs
+- **NEVER**: `any` type, `@ts-ignore`, empty catch blocks, `console.log` in production
+- New sections: Documentation Gates, Verification Gates, Security Gates, Context Optimization
+
+### Smart Init
+
+`npx ai-native init` now auto-detects your project and fills AGENTS.md with real data:
+
+| Detected | Source | Example output |
+|----------|--------|---------------|
+| Package manager | `package.json` → `packageManager` field, lockfile | `bun`, `pnpm`, `yarn` |
+| Runtime | `package.json` → `engines`, dependencies | `bun`, `node 18+` |
+| Framework | `package.json` → dependencies | `next.js`, `express`, `fastapi` |
+| Scripts | `package.json` → `scripts` | `build: tsc`, `test: vitest` |
+| Node version | `package.json` → `engines.node` | `>=18` |
+| TS config | `tsconfig.json` (JSONC-safe) | `strict: true`, `target: ES2022` |
+
+- **Smart mode**: When `package.json` or `tsconfig.json` exists — auto-fills reliable fields, leaves placeholders for uncertain ones
+- **Fallback mode**: When neither exists — uses the template with all placeholders
+- **JSONC parsing**: Safely handles `tsconfig.json` with comments (`//`, `/* */`) and trailing commas
+- **Idempotent**: `<!-- ai-native:managed -->` marker prevents duplicate sections on re-run
+
+### Breaking Changes
+
+- Constitution line count increased (40 → 66) — slightly higher per-prompt token cost (~900 → ~1100 tokens)
+- `getConstitution()` return value changed — if you consume the API directly, update accordingly
+
 ---
 
 ## How to Use
@@ -75,16 +108,16 @@ Commit these files to share with your team.
 
 ### Two-Layer Architecture
 
-**Layer 1 (Always-On)**: 40-line constitution in rules files (~600 tokens/prompt)
+**Layer 1 (Always-On)**: 60-80 line constitution in rules files (~900-1200 tokens/prompt)
 - Auto-loaded by supported clients (Claude Code, Cursor, Windsurf, OpenCode) at session start
 - Activates only for code files (via `paths:`/`globs:` frontmatter)
-- 5 highest-impact principles: naming, type safety, functions, errors, architecture
+- Includes enforcement gates for naming, type safety, functions, errors, docs, architecture, verification
 - **No MCP required** — works via native rules file support
 
 **Layer 2 (On-Demand)**: 16 files (4000+ lines) via MCP tools
 - **Requires MCP server** (configured via `setup` command)
 - **Auto-triggered only in Claude Code** when creating new files/modules
-- Other cases: Layer 1 (40 lines) applies automatically
+- Other cases: Layer 1 applies automatically
 - Comprehensive deep dives on specific topics
 - Research citations, examples, benchmarks
 
@@ -92,7 +125,7 @@ Commit these files to share with your team.
 
 **Selective activation** = zero token waste:
 
-- **Coding** (`.ts`, `.py`, `.java`, etc.) → 40-line constitution loads (~600 tokens)
+- **Coding** (`.ts`, `.py`, `.java`, etc.) → constitution loads (~900-1200 tokens)
 - **Everything else** (chat, docs, planning) → No constitution loaded (0 tokens)
 - **New files/modules** (Claude Code only) → Layer 2 triggers for deep guidance
 
@@ -108,6 +141,19 @@ To get the latest constitution:
 npx -y ai-native setup  # Updates global rules
 npx -y ai-native init   # Updates project rules
 ```
+
+### Smart Init Details
+
+Running `npx -y ai-native init` now creates AGENTS.md in one of two modes:
+
+- **Smart mode** (when `package.json` or `tsconfig.json` exists):
+  - Auto-detects package manager, runtime, framework, and scripts
+  - Parses JSONC-style `tsconfig.json` safely (comments and trailing commas)
+  - Fills only reliable fields and keeps placeholders for uncertain project-specific details
+- **Fallback mode** (when neither file exists):
+  - Uses the AGENTS template with placeholders
+
+This is backward compatible with existing `setup` and `init` workflows.
 
 ### Advanced: MCP Server
 
@@ -186,3 +232,26 @@ Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 - [Contributing Guide](./CONTRIBUTING.md)
 
 **Evidence-informed, not prompt folklore.** Treat headline metrics as directional until replicated in your codebase.
+
+## Changelog
+
+### 2.0.0
+
+- **breaking**: Constitution expanded from 40 to 66 lines with MUST/NEVER enforcement gates
+- **feat**: Smart init — auto-detect package manager, runtime, framework, scripts from `package.json` and `tsconfig.json`
+- **feat**: JSONC-safe `tsconfig.json` parsing (comments, trailing commas, URL `//` preservation)
+- **feat**: Idempotency marker (`<!-- ai-native:managed -->`) prevents duplicate AGENTS.md sections
+- **feat**: Auto-fill AGENTS.md template with detected project metadata
+- **test**: 72 tests (parsers, constitution, init E2E)
+
+### 1.1.2
+
+- **docs**: Explain selective activation efficiency (Layer 1 code-only, Layer 2 on-demand)
+
+### 1.1.1
+
+- **docs**: README clarifications
+
+### 1.0.0
+
+- Initial release. Two-layer architecture, MCP server, setup/init commands, 16 guideline files.

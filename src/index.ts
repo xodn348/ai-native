@@ -56,6 +56,26 @@ const requiredContentFiles = [
   'experiments/semantic-depth-ab-test.md',
 ];
 
+type ScriptName = 'build' | 'test' | 'dev' | 'lint' | 'typecheck' | 'start';
+type PackageManager = 'bun' | 'pnpm' | 'yarn' | 'npm';
+type Runtime = 'bun' | 'node';
+type Framework = 'next' | 'react' | 'express' | 'fastify' | 'hono' | 'nest';
+
+export interface PackageInfo {
+  scripts: Partial<Record<ScriptName, string>>;
+  packageManager: PackageManager;
+  runtime: Runtime;
+  framework?: Framework;
+  nodeVersion?: string;
+}
+
+export interface TsConfigInfo {
+  strict?: boolean;
+  target?: string;
+}
+
+const AI_NATIVE_MARKER = '<!-- ai-native:managed -->';
+
 function readContent(relativePath: string): string {
   const filePath = path.resolve(contentRoot, relativePath);
   return readFileSync(filePath, 'utf-8');
@@ -172,37 +192,69 @@ export function getConstitution(): string {
 # Research-backed guidelines for AI-optimized code.
 
 ## Naming
-- Use descriptive names that reveal intent: getUserById, not get, data, tmp, result
-- Name length should match scope: short in lambdas, descriptive in public APIs
+- MUST use descriptive names that reveal intent: getUserById, not get, data, tmp, result
+- MUST match name length to scope: short in lambdas, descriptive in public APIs
+- NEVER use ambiguous names for exported APIs when intent can be explicit
 - Research: +9% semantic similarity (Yakubov 2025)
 
 ## Type Safety
-- Use explicit types over any. Prefer unknown and narrow with type guards
-- Validate ALL external inputs at system boundaries (Zod, Pydantic, JSON Schema)
+- NEVER use \`any\` in production code; use \`unknown\` and narrow with type guards
+- MUST validate ALL external inputs at system boundaries (Zod, Pydantic, JSON Schema)
+- MUST declare explicit return types for every exported function
+- MUST define interfaces/types before implementation for public contracts
 - Research: -35% hallucination rate with typed + validated stacks
 
 ## Functions
-- Keep functions under 50 lines (target 30). Split if longer
-- One function = one responsibility. If you need "and", split it
-- Use guard clauses (early returns) instead of nested if/else
+- MUST keep functions under 50 lines (target 30); split if longer
+- MUST keep one function = one responsibility; if you need "and", split it
+- MUST use guard clauses (early returns) instead of deep nesting
+- NEVER hide side effects in utility functions; be explicit in names and signatures
 - Research: semantic depth correlates -0.73 to -0.95 with AI success rate
 
 ## Error Handling
-- Use typed, domain-specific errors, not generic Error or string throws
-- Include: error code, user message, context, retryable flag
+- NEVER throw generic \`new Error(...)\` for domain failures
+- MUST create typed domain errors with \`code\` (string), \`retryable\` (boolean), \`userMessage\`
+- MUST include diagnostic context for recoverable failures
+- NEVER swallow errors; catch only to add context or recover explicitly
 - Handle errors at the right abstraction level, never catch-and-ignore
 
 ## Architecture
-- Explicit dependency injection, no hidden global state
-- Dependencies flow one direction only (no circular imports)
-- Each module has a single entry point (index.ts or equivalent)
-- Keep files 150-400 lines. Split if larger
+- MUST use explicit dependency injection and avoid hidden global state
+- MUST keep dependencies one-directional (no circular imports)
+- MUST give each module a single entry point (index.ts or equivalent)
+- MUST keep files in 150-400 lines when feasible; split if larger
+- MUST put public contracts (types/APIs) near the top of files
 - Research: +40% code localization improvement (LocAgent, ACL 2025)
 
+## Documentation
+- MUST add TSDoc to ALL exported functions
+- MUST include \`@param\` with constraints, \`@returns\` with format, \`@throws\` with conditions
+- MUST include \`@example\` for non-trivial exported functions
+- NEVER write comments that restate obvious code; explain intent and constraints
+
+## Verification
+- MUST run typecheck and tests before claiming completion
+- MUST verify changed files compile in strict mode before final output
+- NEVER claim "done" without command evidence when tooling is available
+- MUST keep fixes reversible and scoped to requested changes
+
+## Security Baseline
+- MUST validate untrusted input at boundaries before business logic
+- NEVER hardcode secrets; use environment variables or secret managers
+- MUST use safe defaults for auth, permissions, and data exposure
+- NEVER bypass sanitization or schema validation in production paths
+
+## Context Discipline
+- MUST keep critical contracts near top of files for faster retrieval
+- MUST keep related code close to reduce context dilution
+- NEVER bury public APIs in long files without section markers
+- MUST prefer explicit over clever abstractions for maintainability
+
 ## When Creating New Files or Modules
-Before writing code for new files or modules, call get_checklist() from ai-native MCP tools
-for a comprehensive quality review covering all 10 categories.
-For deeper guidance on specific topics, call get_guide("naming"), get_guide("error-handling"), etc.`;
+If this project has no AGENTS.md, you MUST create one before writing code.
+Call get_template("AGENTS.md") from ai-native MCP tools and fill project-specific sections.
+Before writing new files or modules, you MUST call get_checklist() from ai-native MCP tools.
+For deeper guidance, call get_guide("naming"), get_guide("error-handling"), etc.`;
 }
 
 export function generateClaudeRules(): string {
@@ -232,6 +284,214 @@ export function generateWindsurfRules(): string {
 export function generateAgentsMdSection(): string {
   const constitution = getConstitution();
   return constitution;
+}
+
+export function stripJsonComments(text: string): string {
+  let result = '';
+  let inString = false;
+  let inLineComment = false;
+  let inBlockComment = false;
+  let escaped = false;
+
+  for (let index = 0; index < text.length; index += 1) {
+    const current = text[index] ?? '';
+    const next = text[index + 1] ?? '';
+
+    if (inLineComment) {
+      if (current === '\n') {
+        inLineComment = false;
+        result += current;
+      }
+      continue;
+    }
+
+    if (inBlockComment) {
+      if (current === '*' && next === '/') {
+        inBlockComment = false;
+        index += 1;
+      }
+      continue;
+    }
+
+    if (!inString && current === '/' && next === '/') {
+      inLineComment = true;
+      index += 1;
+      continue;
+    }
+
+    if (!inString && current === '/' && next === '*') {
+      inBlockComment = true;
+      index += 1;
+      continue;
+    }
+
+    result += current;
+
+    if (current === '"' && !escaped) {
+      inString = !inString;
+    }
+
+    escaped = current === '\\' && !escaped;
+    if (current !== '\\') {
+      escaped = false;
+    }
+  }
+
+  return result.replace(/,(\s*[}\]])/g, '$1');
+}
+
+function detectPackageManager(projectDir: string, packageManagerField: unknown): PackageManager {
+  if (typeof packageManagerField === 'string' && packageManagerField.length > 0) {
+    const normalized = packageManagerField.split('@')[0]?.toLowerCase();
+    if (normalized === 'bun' || normalized === 'pnpm' || normalized === 'yarn' || normalized === 'npm') {
+      return normalized;
+    }
+  }
+
+  if (existsSync(path.join(projectDir, 'bun.lockb'))) return 'bun';
+  if (existsSync(path.join(projectDir, 'pnpm-lock.yaml'))) return 'pnpm';
+  if (existsSync(path.join(projectDir, 'yarn.lock'))) return 'yarn';
+  if (existsSync(path.join(projectDir, 'package-lock.json'))) return 'npm';
+
+  return 'npm';
+}
+
+function detectFramework(dependencies: Record<string, unknown>, devDependencies: Record<string, unknown>): Framework | undefined {
+  const allDeps = { ...dependencies, ...devDependencies };
+
+  if ('next' in allDeps) return 'next';
+  if ('react' in allDeps) return 'react';
+  if ('express' in allDeps) return 'express';
+  if ('fastify' in allDeps) return 'fastify';
+  if ('hono' in allDeps) return 'hono';
+  if ('@nestjs/core' in allDeps) return 'nest';
+
+  return undefined;
+}
+
+export function parsePackageJson(projectDir: string): PackageInfo | null {
+  try {
+    const packageJsonPath = path.join(projectDir, 'package.json');
+    if (!existsSync(packageJsonPath)) {
+      return null;
+    }
+
+    const parsed = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as {
+      scripts?: Record<string, string>;
+      packageManager?: string;
+      engines?: { node?: string };
+      dependencies?: Record<string, unknown>;
+      devDependencies?: Record<string, unknown>;
+    };
+
+    const scripts = parsed.scripts ?? {};
+    const dependencies = parsed.dependencies ?? {};
+    const devDependencies = parsed.devDependencies ?? {};
+    const runtime: Runtime = ('bun-types' in devDependencies || existsSync(path.join(projectDir, 'bun.lockb'))) ? 'bun' : 'node';
+
+    return {
+      scripts: {
+        build: scripts.build,
+        test: scripts.test,
+        dev: scripts.dev,
+        lint: scripts.lint,
+        typecheck: scripts.typecheck,
+        start: scripts.start,
+      },
+      packageManager: detectPackageManager(projectDir, parsed.packageManager),
+      runtime,
+      framework: detectFramework(dependencies, devDependencies),
+      nodeVersion: parsed.engines?.node,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function parseTsConfig(projectDir: string): TsConfigInfo | null {
+  try {
+    const tsconfigPath = path.join(projectDir, 'tsconfig.json');
+    if (!existsSync(tsconfigPath)) {
+      return null;
+    }
+
+    const rawTsconfig = readFileSync(tsconfigPath, 'utf-8');
+    const cleanedTsconfig = stripJsonComments(rawTsconfig);
+    const parsed = JSON.parse(cleanedTsconfig) as {
+      compilerOptions?: { strict?: boolean; target?: string };
+    };
+
+    return {
+      strict: parsed.compilerOptions?.strict,
+      target: parsed.compilerOptions?.target,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function safeValue(value: string | undefined, fallback: string): string {
+  if (value === undefined || value.trim().length === 0) {
+    return fallback;
+  }
+  return value;
+}
+
+export function generateSmartAgentsMd(packageInfo: PackageInfo | null, tsConfigInfo: TsConfigInfo | null): string {
+  if (packageInfo === null && tsConfigInfo === null) {
+    return `${AI_NATIVE_MARKER}\n${readContent('templates/AGENTS.md')}`;
+  }
+
+  const framework = packageInfo?.framework ?? '[Your framework]';
+  const packageManager = packageInfo?.packageManager ?? '[npm/pnpm/yarn]';
+  const runtime = packageInfo?.runtime ?? '[Node.js/Deno/Bun/Edge Runtime]';
+  const nodeVersion = packageInfo?.nodeVersion ?? '[Node version]';
+  const strictMode = tsConfigInfo?.strict === undefined ? '[Enabled/Disabled]' : tsConfigInfo.strict ? 'Enabled' : 'Disabled';
+
+  return `${AI_NATIVE_MARKER}
+# AGENTS.md
+
+## Project Context
+- **Framework**: ${framework}
+- **Database**: [Your database] (version)
+- **Auth**: [Your auth solution] (version)
+- **Styling**: [Your styling solution] (version)
+- **Package Manager**: ${packageManager}
+- **Node Version**: ${nodeVersion}
+- **Runtime**: ${runtime}
+
+## Development Workflow
+
+\`\`\`bash
+# Install dependencies
+${packageManager} install
+
+# Development server
+${safeValue(packageInfo?.scripts.dev, '[your dev command]')}
+
+# Build for production
+${safeValue(packageInfo?.scripts.build, '[your build command]')}
+
+# Run tests
+${safeValue(packageInfo?.scripts.test, '[your test command]')}           # All tests
+[your test:watch command]     # Watch mode
+[your test:e2e command]       # E2E tests
+
+# Linting and formatting
+${safeValue(packageInfo?.scripts.lint, '[your lint command]')}           # Check
+[your lint:fix command]       # Auto-fix
+
+# Type checking
+${safeValue(packageInfo?.scripts.typecheck, '[your typecheck command]')}
+\`\`\`
+
+## TypeScript (if applicable)
+- **Strict mode**: ${strictMode}
+- **Target**: ${tsConfigInfo?.target ?? '[ES2022/ESNext/etc]'}
+- **NO \`any\` type** (use \`unknown\` and narrow)
+- **Explicit return types** for exported functions
+
+${getConstitution()}`;
 }
 
 function runInit(): void {
@@ -281,11 +541,13 @@ function runInit(): void {
   // 4. Append to AGENTS.md (idempotent)
   try {
     const agentsMdFile = path.join(cwd, 'AGENTS.md');
-    const section = generateAgentsMdSection();
+    const packageInfo = parsePackageJson(cwd);
+    const tsConfigInfo = parseTsConfig(cwd);
+    const section = generateSmartAgentsMd(packageInfo, tsConfigInfo);
     
     if (existsSync(agentsMdFile)) {
       const content = readFileSync(agentsMdFile, 'utf-8');
-      if (content.includes('# AI-Native Coding Principles')) {
+      if (content.includes('# AI-Native Coding Principles') || content.includes(AI_NATIVE_MARKER)) {
         console.error('[ai-native init] AGENTS.md already contains ai-native section, skipping.');
       } else {
         writeFileSync(agentsMdFile, content + '\n\n' + section, 'utf-8');
