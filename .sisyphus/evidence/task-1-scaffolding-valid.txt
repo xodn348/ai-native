@@ -1,0 +1,14 @@
+=== Scenario 1: Package scaffolding is valid ===
+
+1. Verify package.json fields:
+name: ai-native
+type: module
+bin[ai-native]: dist/index.js
+files: dist,docs,templates,research,experiments,checklist.md,BENCHMARKS.md
+
+2. npm install exit code:
+exit 0 ✓
+
+3. MCP SDK directory exists:
+node_modules/@modelcontextprotocol/sdk
+✓

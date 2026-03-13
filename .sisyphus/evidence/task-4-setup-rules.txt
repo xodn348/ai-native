@@ -1,0 +1,34 @@
+QA Scenario 1: Setup creates global Claude Code rules
+
+Preconditions: ~/.claude/rules/ai-native.md does not exist (or will be overwritten)
+
+Steps:
+1. Run setup command
+$ node dist/index.js setup
+[ai-native setup] Created global rules at /Users/jnnj92/.claude/rules/ai-native.md.
+[ai-native setup] Done. Restart your AI clients to reload MCP configs.
+
+2. Verify file exists
+$ test -f ~/.claude/rules/ai-native.md && echo "File exists"
+File exists
+
+3. Check first 3 lines (frontmatter)
+$ head -3 ~/.claude/rules/ai-native.md
+---
+paths: **/*.ts, **/*.tsx, **/*.js, **/*.jsx, **/*.py, **/*.go, **/*.rs, **/*.java, **/*.kt, **/*.rb, **/*.php, **/*.cs, **/*.cpp, **/*.c, **/*.swift
+---
+
+4. Verify frontmatter format
+- Starts with '---'
+- Contains 'paths:' with unquoted comma-separated values
+- No array syntax, no quoted paths
+
+5. Count lines
+$ wc -l < ~/.claude/rules/ai-native.md
+39
+
+Result: ✅ PASS
+- File created successfully
+- Correct frontmatter format (unquoted, comma-separated)
+- Line count: 39 (≤45 requirement met)
+- Contains all required sections (Naming, Type Safety, Functions, Error Handling, Architecture)

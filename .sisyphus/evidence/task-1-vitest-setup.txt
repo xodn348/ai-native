@@ -1,0 +1,18 @@
+VITEST SETUP VERIFICATION
+========================
+
+Command: npm test
+Exit Code: 0 (SUCCESS)
+
+Output:
+-------
+ RUN  v4.0.18 /Users/jnnj92/ai-native
+
+ ✓ src/__tests__/smoke.test.ts (1 test) 2ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  12:48:53
+   Duration  176ms (transform 20ms, setup 0ms, import 27ms, tests 2ms, environment 0ms)
+
+Status: ✅ PASS - 1 test passing, vitest infrastructure working correctly

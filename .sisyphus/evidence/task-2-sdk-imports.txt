@@ -1,0 +1,196 @@
+MCP SDK v1 Research Results
+===========================
+
+SDK Version: 1.27.1
+Location: node_modules/@modelcontextprotocol/sdk/
+License: MIT
+
+IMPORT PATHS (ESM)
+==================
+
+1. McpServer Class
+   Import: import { McpServer } from '@modelcontextprotocol/sdk/server'
+   Source: dist/esm/server/mcp.d.ts
+   Type: High-level server API (recommended for most use cases)
+   
+2. StdioServerTransport Class
+   Import: import { StdioServerTransport } from '@modelcontextprotocol/sdk/server'
+   Source: dist/esm/server/stdio.d.ts
+   Type: Node.js stdio transport for local process communication
+   
+3. Zod Schemas
+   Import: import { z } from 'zod'
+   Note: SDK supports both zod v3 and v4
+   SDK internally uses: zod/v4 (with v3 compatibility)
+   
+4. Server Class (Low-level, deprecated)
+   Import: import { Server } from '@modelcontextprotocol/sdk/server'
+   Source: dist/esm/server/index.d.ts
+   Note: Use McpServer instead for new code
+
+PACKAGE.JSON EXPORTS
+====================
+
+The SDK uses conditional exports:
+- ESM: ./dist/esm/[module]/index.js
+- CJS: ./dist/cjs/[module]/index.js
+
+Main exports:
+  "." → root index
+  "./server" → server module (McpServer, Server, StdioServerTransport)
+  "./client" → client module
+  "./validation" → validation module
+
+API SIGNATURES
+==============
+
+McpServer Constructor:
+  constructor(serverInfo: Implementation, options?: ServerOptions)
+  
+  serverInfo: { name: string; version: string }
+  options?: {
+    capabilities?: ServerCapabilities;
+    instructions?: string;
+    jsonSchemaValidator?: jsonSchemaValidator;
+  }
+
+McpServer.connect():
+  connect(transport: Transport): Promise<void>
+  
+  Attaches to transport, starts it, and begins listening for messages.
+  Server assumes ownership of the Transport instance.
+
+McpServer.registerTool():
+  registerTool<OutputArgs, InputArgs>(
+    name: string,
+    config: {
+      title?: string;
+      description?: string;
+      inputSchema?: InputArgs;
+      outputSchema?: OutputArgs;
+      annotations?: ToolAnnotations;
+      _meta?: Record<string, unknown>;
+    },
+    cb: ToolCallback<InputArgs>
+  ): RegisteredTool
+
+  Deprecated overloads also available:
+  - tool(name: string, cb: ToolCallback)
+  - tool(name: string, description: string, cb: ToolCallback)
+  - tool(name: string, paramsSchema: ZodRawShapeCompat, cb: ToolCallback)
+  - tool(name: string, description: string, paramsSchema: ZodRawShapeCompat, cb: ToolCallback)
+
+McpServer.registerPrompt():
+  registerPrompt<Args extends PromptArgsRawShape>(
+    name: string,
+    config: {
+      title?: string;
+      description?: string;
+      argsSchema?: Args;
+    },
+    cb: PromptCallback<Args>
+  ): RegisteredPrompt
+
+McpServer.registerResource():
+  registerResource(
+    name: string,
+    uriOrTemplate: string | ResourceTemplate,
+    config: ResourceMetadata,
+    readCallback: ReadResourceCallback | ReadResourceTemplateCallback
+  ): RegisteredResource | RegisteredResourceTemplate
+
+StdioServerTransport Constructor:
+  constructor(_stdin?: Readable, _stdout?: Writable)
+  
+  Default: uses process.stdin and process.stdout
+  Implements Transport interface with:
+  - start(): Promise<void>
+  - close(): Promise<void>
+  - send(message: JSONRPCMessage): Promise<void>
+  - onmessage?: (message: JSONRPCMessage) => void
+  - onerror?: (error: Error) => void
+  - onclose?: () => void
+
+SCHEMA TYPES
+============
+
+ZodRawShapeCompat:
+  Type: Record<string, AnySchema>
+  Used for: Tool input/output schemas, prompt arguments
+  Supports: Both Zod v3 and v4 schemas
+  
+AnySchema:
+  Union of: z3.ZodTypeAny | z4.$ZodType
+  Allows: Any Zod schema from v3 or v4
+
+SchemaOutput<S>:
+  Type utility to infer output type from schema
+  Works with both Zod v3 and v4
+
+MINIMAL WORKING EXAMPLE PATTERN
+================================
+
+```typescript
+import { McpServer } from '@modelcontextprotocol/sdk/server';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server';
+import { z } from 'zod';
+
+// Create server
+const server = new McpServer({
+  name: 'my-server',
+  version: '1.0.0'
+});
+
+// Register a tool with schema
+server.registerTool(
+  'my-tool',
+  {
+    description: 'Does something useful',
+    inputSchema: {
+      param1: z.string(),
+      param2: z.number().optional()
+    }
+  },
+  async (args) => {
+    // args is typed as { param1: string; param2?: number }
+    return { result: 'success' };
+  }
+);
+
+// Connect to stdio transport
+const transport = new StdioServerTransport();
+await server.connect(transport);
+```
+
+KEY FINDINGS FOR TASK 3
+=======================
+
+1. Use McpServer (not Server) - it's the high-level recommended API
+2. Import from '@modelcontextprotocol/sdk/server' (not subpaths)
+3. registerTool() is the modern API (tool() is deprecated)
+4. Schemas can be:
+   - ZodRawShapeCompat: { fieldName: z.string(), ... }
+   - Full Zod objects: z.object({ ... })
+5. StdioServerTransport is Node.js only
+6. server.connect(transport) is async and takes ownership of transport
+7. Zod is required peer dependency - already installed
+
+VERIFICATION CHECKLIST
+======================
+
+✓ SDK version confirmed: 1.27.1
+✓ McpServer class exists at: dist/esm/server/mcp.d.ts
+✓ StdioServerTransport class exists at: dist/esm/server/stdio.d.ts
+✓ Package.json exports verified
+✓ API signatures extracted from TypeScript definitions
+✓ Zod compatibility confirmed (v3 and v4 support)
+✓ Example patterns documented
+
+REFERENCES
+==========
+
+- Official SDK: github.com/modelcontextprotocol/typescript-sdk
+- Example servers: github.com/modelcontextprotocol/servers
+- MCP Spec: spec.modelcontextprotocol.io
+- SDK README: node_modules/@modelcontextprotocol/sdk/README.md
+- TypeScript definitions: node_modules/@modelcontextprotocol/sdk/dist/esm/server/*.d.ts

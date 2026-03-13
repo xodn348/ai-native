@@ -1,0 +1,35 @@
+=== Scenario 2: tsconfig.json does not conflict with template ===
+
+1. Diff root tsconfig.json vs templates/tsconfig.json:
+4,8c4
+<     "target": "ES2022",
+<     "module": "Node16",
+<     "moduleResolution": "Node16",
+<     "outDir": "dist",
+<     "rootDir": "src",
+---
+>     // Type Checking
+10,12c6,19
+<     "esModuleInterop": true,
+<     "skipLibCheck": true,
+<     "forceConsistentCasingInFileNames": true,
+---
+>     "noUnusedLocals": true,
+>     "noUnusedParameters": true,
+>     "noFallthroughCasesInSwitch": true,
+>     "noImplicitReturns": true,
+>     "noUncheckedIndexedAccess": true,
+>     "allowUnusedLabels": false,
+>     "allowUnreachableCode": false,
+
+2. Root tsconfig.json outDir:
+    "outDir": "dist",
+
+3. Root tsconfig.json rootDir:
+    "rootDir": "src",
+
+4. Template tsconfig.json outDir:
+    "outDir": "./dist",
+
+5. Template tsconfig.json rootDir:
+    "rootDir": "./src",

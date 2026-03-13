@@ -1,0 +1,1 @@
+No hardcoded version found in dist/index.js

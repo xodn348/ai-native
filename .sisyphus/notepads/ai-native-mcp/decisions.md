@@ -1,0 +1,2 @@
+- Chose direct file reads per tool call (no caching/search) to keep behavior deterministic and aligned with spec constraints.
+- Kept stdout reserved for JSON-RPC by using only console.error for human-facing TTY usage text and failures.

@@ -231,6 +231,7 @@ export function getConstitution(): string {
 - MUST include \`@param\` with constraints, \`@returns\` with format, \`@throws\` with conditions
 - MUST include \`@example\` for non-trivial exported functions
 - NEVER write comments that restate obvious code; explain intent and constraints
+- MUST use \`<details>\` in README for secondary sections (changelog, internal architecture, advanced config); keep install, usage, and core features visible
 
 ## Verification
 - MUST run typecheck and tests before claiming completion

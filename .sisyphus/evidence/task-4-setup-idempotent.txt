@@ -1,0 +1,22 @@
+QA Scenario 2: Setup is idempotent
+
+Steps:
+1. Run setup command (first time)
+$ node dist/index.js setup
+[ai-native setup] Created global rules at /Users/jnnj92/.claude/rules/ai-native.md.
+
+2. Copy file for comparison
+$ cp ~/.claude/rules/ai-native.md /tmp/first-run.md
+
+3. Run setup command again (second time)
+$ node dist/index.js setup
+[ai-native setup] Created global rules at /Users/jnnj92/.claude/rules/ai-native.md.
+
+4. Compare files
+$ diff ~/.claude/rules/ai-native.md /tmp/first-run.md
+(no output - files are identical)
+
+Result: ✅ PASS
+- Second run produces identical file
+- No differences detected
+- Setup is idempotent (can be run multiple times safely)

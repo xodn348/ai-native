@@ -1,0 +1,22 @@
+VITEST ESM CONFIGURATION
+========================
+
+File: vitest.config.ts
+Location: /Users/jnnj92/ai-native/vitest.config.ts
+
+Content:
+--------
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'node',
+  },
+});
+
+Verification:
+- ✅ Uses ESM import syntax (import ... from)
+- ✅ Uses export default (ESM pattern)
+- ✅ Configured for Node.js environment
+- ✅ Global test functions enabled (describe, it, expect)

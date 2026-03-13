@@ -1,0 +1,41 @@
+Test Results
+
+$ npm test
+
+ ✓ src/__tests__/smoke.test.ts (1 test) 2ms
+ ✓ dist/__tests__/smoke.test.js (1 test) 2ms
+ ✓ dist/__tests__/templates.test.js (9 tests) 7ms
+ ✓ src/__tests__/templates.test.ts (9 tests) 7ms
+ ✓ src/__tests__/setup.test.ts (8 tests) 6ms
+
+ Test Files  5 passed (5)
+      Tests  28 passed (28)
+   Duration  377ms
+
+New tests in src/__tests__/setup.test.ts:
+- File Creation (2 tests)
+  ✓ should create directory structure if it does not exist
+  ✓ should create ai-native.md with correct content
+
+- Frontmatter Format (3 tests)
+  ✓ should have correct paths frontmatter with unquoted comma-separated values
+  ✓ should not have quoted paths or array syntax
+  ✓ should have paths on a single line
+
+- Content Validation (2 tests)
+  ✓ should have total line count ≤45
+  ✓ should contain all main sections
+
+- Idempotency (1 test)
+  ✓ should produce identical content on multiple calls
+
+Build verification:
+$ npm run build
+(exits 0 - no errors)
+
+All acceptance criteria met:
+✅ runSetup() creates ~/.claude/rules/ai-native.md
+✅ File has correct paths: frontmatter (unquoted comma-separated)
+✅ Uses os.homedir() not process.env.HOME
+✅ Errors are caught and logged, don't crash setup
+✅ Running setup twice produces identical file

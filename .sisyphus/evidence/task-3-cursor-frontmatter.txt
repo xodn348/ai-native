@@ -1,0 +1,31 @@
+TASK 3: Cursor .mdc Frontmatter Verification
+==============================================
+
+TEST: generateCursorRules() function produces correct frontmatter format
+
+EXPECTED FORMAT:
+---
+description: AI-native coding principles for optimal AI agent interaction
+globs: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py", "**/*.go", "**/*.rs", "**/*.java", "**/*.kt", "**/*.rb", "**/*.php", "**/*.cs", "**/*.cpp", "**/*.c", "**/*.swift"]
+alwaysApply: true
+---
+
+VERIFICATION RESULTS:
+✓ Frontmatter starts and ends with ---
+✓ description field present with correct value
+✓ globs field present with YAML array syntax (quoted strings in brackets)
+✓ alwaysApply: true is present (CRITICAL - silently ignored if missing)
+✓ All required file extensions in globs: ts, tsx, js, jsx, py, go, rs, java, kt, rb, php, cs, cpp, c, swift
+✓ Constitution content follows frontmatter
+
+TEST EXECUTION:
+npm test -- src/__tests__/templates.test.ts -t "should include alwaysApply"
+✓ PASSED
+
+npm test -- src/__tests__/templates.test.ts -t "should have proper YAML frontmatter"
+✓ PASSED
+
+CRITICAL REQUIREMENT MET:
+The alwaysApply: true field is present and correctly formatted.
+This field is SILENTLY IGNORED if missing, so its presence is critical for proper Cursor behavior.
+The YAML structure is valid and will be correctly parsed by Cursor's .mdc file handler.

@@ -1,0 +1,25 @@
+TASK 3: Claude Code Frontmatter Verification
+=============================================
+
+TEST: generateClaudeRules() function produces correct frontmatter format
+
+EXPECTED FORMAT:
+---
+paths: **/*.ts, **/*.tsx, **/*.js, **/*.jsx, **/*.py, **/*.go, **/*.rs, **/*.java, **/*.kt, **/*.rb, **/*.php, **/*.cs, **/*.cpp, **/*.c, **/*.swift
+---
+
+VERIFICATION RESULTS:
+✓ Frontmatter starts with --- and paths: on first line
+✓ Paths are UNQUOTED (no quotes around glob patterns)
+✓ Paths are comma-separated on a SINGLE LINE (not YAML list syntax)
+✓ No YAML list syntax (no [ or - prefixes)
+✓ All required file extensions present: ts, tsx, js, jsx, py, go, rs, java, kt, rb, php, cs, cpp, c, swift
+✓ Constitution content follows frontmatter
+
+TEST EXECUTION:
+npm test -- src/__tests__/templates.test.ts -t "should include paths frontmatter"
+✓ PASSED
+
+CRITICAL REQUIREMENT MET:
+The paths frontmatter is formatted exactly as required for Claude Code .claude.md files.
+No quotes, comma-separated, single line format ensures proper parsing by Claude Code.
