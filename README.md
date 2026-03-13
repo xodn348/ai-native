@@ -220,6 +220,10 @@ Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 <details>
 <summary><strong>Changelog</strong></summary>
 
+### 2.3.4
+
+- fix: remove AGENTS.md instruction from constitution, atomic upsert for shared JSON configs
+
 ### 2.3.3
 
 - docs: remove outdated Smart Init section from What's New in v2
