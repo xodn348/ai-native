@@ -69,19 +69,20 @@ function verifyContentFiles(): void {
   }
 }
 
+function readJsonFile(filePath: string): Record<string, unknown> {
+  if (!existsSync(filePath)) return {};
+  const raw = readFileSync(filePath, 'utf-8').trim();
+  if (!raw) return {};
+  const parsed = JSON.parse(raw);
+  return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+    ? (parsed as Record<string, unknown>)
+    : {};
+}
+
 function upsertJsonServer(filePath: string): void {
   mkdirSync(path.dirname(filePath), { recursive: true });
 
-  let data: Record<string, unknown> = {};
-  if (existsSync(filePath)) {
-    const raw = readFileSync(filePath, 'utf-8').trim();
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object') {
-        data = parsed as Record<string, unknown>;
-      }
-    }
-  }
+  const data = readJsonFile(filePath);
 
   const existingServers = data.mcpServers;
   const servers =
@@ -89,13 +90,17 @@ function upsertJsonServer(filePath: string): void {
       ? (existingServers as Record<string, unknown>)
       : {};
 
-  servers['ai-native'] = {
-    command: 'npx',
-    args: ['-y', 'ai-native'],
-  };
+  if (servers['ai-native'] !== undefined) return;
 
-  data.mcpServers = servers;
-  writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`, 'utf-8');
+  const freshData = readJsonFile(filePath);
+  const freshServers =
+    freshData.mcpServers && typeof freshData.mcpServers === 'object' && !Array.isArray(freshData.mcpServers)
+      ? (freshData.mcpServers as Record<string, unknown>)
+      : {};
+
+  freshServers['ai-native'] = { command: 'npx', args: ['-y', 'ai-native'] };
+  freshData.mcpServers = freshServers;
+  writeFileSync(filePath, `${JSON.stringify(freshData, null, 2)}\n`, 'utf-8');
 }
 
 function upsertCodexToml(filePath: string): void {
@@ -234,8 +239,6 @@ export function getConstitution(): string {
 - MUST prefer explicit over clever abstractions for maintainability
 
 ## When Creating New Files or Modules
-If this project has no AGENTS.md, you MUST create one before writing code.
-Call get_template("AGENTS.md") from ai-native MCP tools and fill project-specific sections.
 Before writing new files or modules, you MUST call get_checklist() from ai-native MCP tools.
 For deeper guidance, call get_guide("naming"), get_guide("error-handling"), etc.`;
 }
