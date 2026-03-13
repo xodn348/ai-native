@@ -101,7 +101,6 @@ Creates per-project rules files:
 | Cursor | `.cursor/rules/ai-native.mdc` | `alwaysApply: true` |
 | Windsurf | `.windsurf/rules/ai-native.md` | Plain markdown |
 | Codex | `.codex/ai-native.md` | Plain markdown |
-| OpenCode | `AGENTS.md` | Appended section (idempotent) |
 
 Commit these files to share with your team.
 

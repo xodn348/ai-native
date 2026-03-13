@@ -1,9 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
-  generateAgentsMdSection,
   generateClaudeRules,
   generateCursorRules,
-  generateSmartAgentsMd,
   generateWindsurfRules,
   getConstitution,
 } from '../index.js';
@@ -49,45 +47,5 @@ describe('constitution and rules generation', () => {
     const content = generateWindsurfRules();
     expect(content).not.toMatch(/^---/);
     expect(content).toContain('# AI-Native Coding Principles');
-  });
-
-  it('generateAgentsMdSection returns constitution for backward compatibility', () => {
-    const content = generateAgentsMdSection();
-    expect(content).toContain('# AI-Native Coding Principles');
-    expect(content).toContain('## Documentation');
-  });
-
-  it('generateSmartAgentsMd falls back to template when no project metadata', () => {
-    const content = generateSmartAgentsMd(null, null);
-    expect(content).toContain('# AGENTS.md Template');
-    expect(content).toContain('<!-- auto:script-build -->');
-  });
-
-  it('generateSmartAgentsMd injects detected values when metadata exists', () => {
-    const content = generateSmartAgentsMd(
-      {
-        scripts: {
-          build: 'pnpm build',
-          test: 'pnpm test',
-          dev: 'pnpm dev',
-          lint: 'pnpm lint',
-          typecheck: 'pnpm typecheck',
-        },
-        packageManager: 'pnpm',
-        runtime: 'node',
-        framework: 'next',
-        nodeVersion: '>=20',
-      },
-      {
-        strict: true,
-        target: 'ES2022',
-      },
-    );
-
-    expect(content).toContain('<!-- ai-native:managed -->');
-    expect(content).toContain('**Framework**: next');
-    expect(content).toContain('pnpm build');
-    expect(content).toContain('**Strict mode**: Enabled');
-    expect(content).not.toContain('# AI-Native Coding Principles');
   });
 });

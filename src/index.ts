@@ -56,25 +56,7 @@ const requiredContentFiles = [
   'experiments/semantic-depth-ab-test.md',
 ];
 
-type ScriptName = 'build' | 'test' | 'dev' | 'lint' | 'typecheck' | 'start';
-type PackageManager = 'bun' | 'pnpm' | 'yarn' | 'npm';
-type Runtime = 'bun' | 'node';
-type Framework = 'next' | 'react' | 'express' | 'fastify' | 'hono' | 'nest';
 
-export interface PackageInfo {
-  scripts: Partial<Record<ScriptName, string>>;
-  packageManager: PackageManager;
-  runtime: Runtime;
-  framework?: Framework;
-  nodeVersion?: string;
-}
-
-export interface TsConfigInfo {
-  strict?: boolean;
-  target?: string;
-}
-
-const AI_NATIVE_MARKER = '<!-- ai-native:managed -->';
 
 function readContent(relativePath: string): string {
   const filePath = path.resolve(contentRoot, relativePath);
@@ -286,217 +268,9 @@ export function generateCodexRules(): string {
   return getConstitution();
 }
 
-export function generateAgentsMdSection(): string {
-  const constitution = getConstitution();
-  return constitution;
-}
 
-export function stripJsonComments(text: string): string {
-  let result = '';
-  let inString = false;
-  let inLineComment = false;
-  let inBlockComment = false;
-  let escaped = false;
 
-  for (let index = 0; index < text.length; index += 1) {
-    const current = text[index] ?? '';
-    const next = text[index + 1] ?? '';
 
-    if (inLineComment) {
-      if (current === '\n') {
-        inLineComment = false;
-        result += current;
-      }
-      continue;
-    }
-
-    if (inBlockComment) {
-      if (current === '*' && next === '/') {
-        inBlockComment = false;
-        index += 1;
-      }
-      continue;
-    }
-
-    if (!inString && current === '/' && next === '/') {
-      inLineComment = true;
-      index += 1;
-      continue;
-    }
-
-    if (!inString && current === '/' && next === '*') {
-      inBlockComment = true;
-      index += 1;
-      continue;
-    }
-
-    result += current;
-
-    if (current === '"' && !escaped) {
-      inString = !inString;
-    }
-
-    escaped = current === '\\' && !escaped;
-    if (current !== '\\') {
-      escaped = false;
-    }
-  }
-
-  return result.replace(/,(\s*[}\]])/g, '$1');
-}
-
-function detectPackageManager(projectDir: string, packageManagerField: unknown): PackageManager {
-  if (typeof packageManagerField === 'string' && packageManagerField.length > 0) {
-    const normalized = packageManagerField.split('@')[0]?.toLowerCase();
-    if (normalized === 'bun' || normalized === 'pnpm' || normalized === 'yarn' || normalized === 'npm') {
-      return normalized;
-    }
-  }
-
-  if (existsSync(path.join(projectDir, 'bun.lockb'))) return 'bun';
-  if (existsSync(path.join(projectDir, 'pnpm-lock.yaml'))) return 'pnpm';
-  if (existsSync(path.join(projectDir, 'yarn.lock'))) return 'yarn';
-  if (existsSync(path.join(projectDir, 'package-lock.json'))) return 'npm';
-
-  return 'npm';
-}
-
-function detectFramework(dependencies: Record<string, unknown>, devDependencies: Record<string, unknown>): Framework | undefined {
-  const allDeps = { ...dependencies, ...devDependencies };
-
-  if ('next' in allDeps) return 'next';
-  if ('react' in allDeps) return 'react';
-  if ('express' in allDeps) return 'express';
-  if ('fastify' in allDeps) return 'fastify';
-  if ('hono' in allDeps) return 'hono';
-  if ('@nestjs/core' in allDeps) return 'nest';
-
-  return undefined;
-}
-
-export function parsePackageJson(projectDir: string): PackageInfo | null {
-  try {
-    const packageJsonPath = path.join(projectDir, 'package.json');
-    if (!existsSync(packageJsonPath)) {
-      return null;
-    }
-
-    const parsed = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as {
-      scripts?: Record<string, string>;
-      packageManager?: string;
-      engines?: { node?: string };
-      dependencies?: Record<string, unknown>;
-      devDependencies?: Record<string, unknown>;
-    };
-
-    const scripts = parsed.scripts ?? {};
-    const dependencies = parsed.dependencies ?? {};
-    const devDependencies = parsed.devDependencies ?? {};
-    const runtime: Runtime = ('bun-types' in devDependencies || existsSync(path.join(projectDir, 'bun.lockb'))) ? 'bun' : 'node';
-
-    return {
-      scripts: {
-        build: scripts.build,
-        test: scripts.test,
-        dev: scripts.dev,
-        lint: scripts.lint,
-        typecheck: scripts.typecheck,
-        start: scripts.start,
-      },
-      packageManager: detectPackageManager(projectDir, parsed.packageManager),
-      runtime,
-      framework: detectFramework(dependencies, devDependencies),
-      nodeVersion: parsed.engines?.node,
-    };
-  } catch {
-    return null;
-  }
-}
-
-export function parseTsConfig(projectDir: string): TsConfigInfo | null {
-  try {
-    const tsconfigPath = path.join(projectDir, 'tsconfig.json');
-    if (!existsSync(tsconfigPath)) {
-      return null;
-    }
-
-    const rawTsconfig = readFileSync(tsconfigPath, 'utf-8');
-    const cleanedTsconfig = stripJsonComments(rawTsconfig);
-    const parsed = JSON.parse(cleanedTsconfig) as {
-      compilerOptions?: { strict?: boolean; target?: string };
-    };
-
-    return {
-      strict: parsed.compilerOptions?.strict,
-      target: parsed.compilerOptions?.target,
-    };
-  } catch {
-    return null;
-  }
-}
-
-function safeValue(value: string | undefined, fallback: string): string {
-  if (value === undefined || value.trim().length === 0) {
-    return fallback;
-  }
-  return value;
-}
-
-export function generateSmartAgentsMd(packageInfo: PackageInfo | null, tsConfigInfo: TsConfigInfo | null): string {
-  if (packageInfo === null && tsConfigInfo === null) {
-    return `${AI_NATIVE_MARKER}\n${readContent('templates/AGENTS.md')}`;
-  }
-
-  const framework = packageInfo?.framework ?? '[Your framework]';
-  const packageManager = packageInfo?.packageManager ?? '[npm/pnpm/yarn]';
-  const runtime = packageInfo?.runtime ?? '[Node.js/Deno/Bun/Edge Runtime]';
-  const nodeVersion = packageInfo?.nodeVersion ?? '[Node version]';
-  const strictMode = tsConfigInfo?.strict === undefined ? '[Enabled/Disabled]' : tsConfigInfo.strict ? 'Enabled' : 'Disabled';
-
-  return `${AI_NATIVE_MARKER}
-# AGENTS.md
-
-## Project Context
-- **Framework**: ${framework}
-- **Database**: [Your database] (version)
-- **Auth**: [Your auth solution] (version)
-- **Styling**: [Your styling solution] (version)
-- **Package Manager**: ${packageManager}
-- **Node Version**: ${nodeVersion}
-- **Runtime**: ${runtime}
-
-## Development Workflow
-
-\`\`\`bash
-# Install dependencies
-${packageManager} install
-
-# Development server
-${safeValue(packageInfo?.scripts.dev, '[your dev command]')}
-
-# Build for production
-${safeValue(packageInfo?.scripts.build, '[your build command]')}
-
-# Run tests
-${safeValue(packageInfo?.scripts.test, '[your test command]')}           # All tests
-[your test:watch command]     # Watch mode
-[your test:e2e command]       # E2E tests
-
-# Linting and formatting
-${safeValue(packageInfo?.scripts.lint, '[your lint command]')}           # Check
-[your lint:fix command]       # Auto-fix
-
-# Type checking
-${safeValue(packageInfo?.scripts.typecheck, '[your typecheck command]')}
-\`\`\`
-
-## TypeScript (if applicable)
-- **Strict mode**: ${strictMode}
-- **Target**: ${tsConfigInfo?.target ?? '[ES2022/ESNext/etc]'}
-- **NO \`any\` type** (use \`unknown\` and narrow)
-- **Explicit return types** for exported functions
-`;
-}
 
 function runInit(): void {
   const cwd = process.cwd();
@@ -554,31 +328,7 @@ function runInit(): void {
     console.error(`[ai-native init] Warning: Failed to create .codex/ai-native.md: ${message}`);
   }
 
-  // 5. Append to AGENTS.md (idempotent)
-  try {
-    const agentsMdFile = path.join(cwd, 'AGENTS.md');
-    const packageInfo = parsePackageJson(cwd);
-    const tsConfigInfo = parseTsConfig(cwd);
-    const section = generateSmartAgentsMd(packageInfo, tsConfigInfo);
-    
-    if (existsSync(agentsMdFile)) {
-      const content = readFileSync(agentsMdFile, 'utf-8');
-      if (content.includes('# AI-Native Coding Principles') || content.includes(AI_NATIVE_MARKER)) {
-        console.error('[ai-native init] AGENTS.md already contains ai-native section, skipping.');
-      } else {
-        writeFileSync(agentsMdFile, content + '\n\n' + section, 'utf-8');
-        console.error(`[ai-native init] Appended ai-native section to ${path.relative(cwd, agentsMdFile)}`);
-      }
-    } else {
-      writeFileSync(agentsMdFile, section, 'utf-8');
-      console.error(`[ai-native init] Created ${path.relative(cwd, agentsMdFile)}`);
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    console.error(`[ai-native init] Warning: Failed to update AGENTS.md: ${message}`);
-  }
-
-  console.error('[ai-native init] Done. Per-project rules files created for Claude Code, Claude Desktop, Cursor, Windsurf, Codex, and OpenCode.');
+  console.error('[ai-native init] Done. Per-project rules files created for Claude Code, Claude Desktop, Cursor, Windsurf, and Codex.');
 }
 
 function printUsage(): void {
@@ -589,7 +339,7 @@ Commands:
     Auto-configure MCP for Claude Code, Claude Desktop, Cursor, and Codex CLI.
 
   npx -y ai-native init
-    Create per-project rules files (.claude/rules, .cursor/rules, .windsurf/rules, .codex, AGENTS.md).
+    Create per-project rules files (.claude/rules, .cursor/rules, .windsurf/rules, .codex).
 
   npx -y ai-native
     Run stdio MCP server (used by AI clients).
