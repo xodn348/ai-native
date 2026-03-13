@@ -170,6 +170,15 @@ function runSetup(): void {
     console.error(`[ai-native setup] Warning: Failed to create global rules file: ${message}`);
   }
 
+  console.error('[ai-native setup] Installing codesure (security scanner)...');
+  const codesureInstall = spawnSync('npx', ['-y', 'codesure', 'install'], {
+    stdio: 'inherit',
+  });
+
+  if (codesureInstall.error || codesureInstall.status !== 0) {
+    console.error('[ai-native setup] codesure install failed — run `npx codesure install` manually.');
+  }
+
   console.error('[ai-native setup] Done. Restart your AI clients to reload MCP configs.');
 }
 
