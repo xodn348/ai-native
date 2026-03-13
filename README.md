@@ -29,6 +29,13 @@ Traditional codebases force agents to repeatedly load large contexts, infer impl
 
 **Illustrative ROI (10 developers)**: $33K–$66K/year API savings + ~500 hours/year recovered.
 
+## What's New in v2
+
+- Layer 1 constitution expanded to 60-80 lines with stronger MUST/NEVER enforcement
+- Top checklist rules now embedded directly in Layer 1 (AGENTS.md bootstrap, typed errors, TSDoc, explicit returns, no any)
+- `init` now supports smart AGENTS generation from `package.json` and `tsconfig.json`
+- Smart init auto-fills only high-confidence fields and leaves uncertain sections as placeholders
+
 ---
 
 ## How to Use
@@ -75,16 +82,16 @@ Commit these files to share with your team.
 
 ### Two-Layer Architecture
 
-**Layer 1 (Always-On)**: 40-line constitution in rules files (~600 tokens/prompt)
+**Layer 1 (Always-On)**: 60-80 line constitution in rules files (~900-1200 tokens/prompt)
 - Auto-loaded by supported clients (Claude Code, Cursor, Windsurf, OpenCode) at session start
 - Activates only for code files (via `paths:`/`globs:` frontmatter)
-- 5 highest-impact principles: naming, type safety, functions, errors, architecture
+- Includes enforcement gates for naming, type safety, functions, errors, docs, architecture, verification
 - **No MCP required** — works via native rules file support
 
 **Layer 2 (On-Demand)**: 16 files (4000+ lines) via MCP tools
 - **Requires MCP server** (configured via `setup` command)
 - **Auto-triggered only in Claude Code** when creating new files/modules
-- Other cases: Layer 1 (40 lines) applies automatically
+- Other cases: Layer 1 applies automatically
 - Comprehensive deep dives on specific topics
 - Research citations, examples, benchmarks
 
@@ -92,7 +99,7 @@ Commit these files to share with your team.
 
 **Selective activation** = zero token waste:
 
-- **Coding** (`.ts`, `.py`, `.java`, etc.) → 40-line constitution loads (~600 tokens)
+- **Coding** (`.ts`, `.py`, `.java`, etc.) → constitution loads (~900-1200 tokens)
 - **Everything else** (chat, docs, planning) → No constitution loaded (0 tokens)
 - **New files/modules** (Claude Code only) → Layer 2 triggers for deep guidance
 
@@ -108,6 +115,19 @@ To get the latest constitution:
 npx -y ai-native setup  # Updates global rules
 npx -y ai-native init   # Updates project rules
 ```
+
+### Smart Init Details
+
+Running `npx -y ai-native init` now creates AGENTS.md in one of two modes:
+
+- **Smart mode** (when `package.json` or `tsconfig.json` exists):
+  - Auto-detects package manager, runtime, framework, and scripts
+  - Parses JSONC-style `tsconfig.json` safely (comments and trailing commas)
+  - Fills only reliable fields and keeps placeholders for uncertain project-specific details
+- **Fallback mode** (when neither file exists):
+  - Uses the AGENTS template with placeholders
+
+This is backward compatible with existing `setup` and `init` workflows.
 
 ### Advanced: MCP Server
 

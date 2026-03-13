@@ -69,11 +69,11 @@ describe('Setup - Global Rules File Creation', () => {
   });
 
   describe('Content Validation', () => {
-    it('should have total line count ≤45', () => {
+    it('should have total line count ≤90', () => {
       const content = generateClaudeRules();
       const lines = content.split('\n');
 
-      expect(lines.length).toBeLessThanOrEqual(45);
+      expect(lines.length).toBeLessThanOrEqual(90);
     });
 
     it('should contain all main sections', () => {

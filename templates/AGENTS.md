@@ -7,13 +7,13 @@ Copy this file to your project root and customize for your tech stack.
 # AGENTS.md
 
 ## Project Context
-- **Framework**: [Your framework] (version)
+- **Framework**: [Your framework] (version) <!-- auto:framework -->
 - **Database**: [Your database] (version)
 - **Auth**: [Your auth solution] (version)
 - **Styling**: [Your styling solution] (version)
-- **Package Manager**: [npm/pnpm/yarn] (specify version)
-- **Node Version**: [Node version] (use `nvm use` or specify in `.nvmrc`)
-- **Runtime**: [Node.js/Deno/Bun/Edge Runtime]
+- **Package Manager**: [npm/pnpm/yarn] (specify version) <!-- auto:package-manager -->
+- **Node Version**: [Node version] (use `nvm use` or specify in `.nvmrc`) <!-- auto:node-version -->
+- **Runtime**: [Node.js/Deno/Bun/Edge Runtime] <!-- auto:runtime -->
 
 ## Architecture
 
@@ -41,18 +41,18 @@ src/
 [your install command]
 
 # Development server
-[your dev command]
+[your dev command]          <!-- auto:script-dev -->
 
 # Build for production
-[your build command]
+[your build command]        <!-- auto:script-build -->
 
 # Run tests
-[your test command]           # All tests
+[your test command]           # All tests  <!-- auto:script-test -->
 [your test:watch command]     # Watch mode
 [your test:e2e command]       # E2E tests
 
 # Linting and formatting
-[your lint command]           # Check
+[your lint command]           # Check  <!-- auto:script-lint -->
 [your lint:fix command]       # Auto-fix
 
 # Database (if applicable)
@@ -74,7 +74,7 @@ src/
 - [Import order, file naming, etc.]
 
 ### TypeScript (if applicable)
-- **Strict mode**: [Enabled/Disabled]
+- **Strict mode**: [Enabled/Disabled] <!-- auto:ts-strict -->
 - **NO `any` type** (use `unknown` and narrow)
 - **Explicit return types** for exported functions
 - **[Validation library] for all external data**
@@ -97,7 +97,7 @@ src/
 - **NEVER [constraint 2]** (reason)
 - **NEVER use `any` type** (use `unknown` and narrow)
 - **NEVER commit secrets** (use environment variables)
-- **NEVER use `eval()` or `Function()` constructor
+- **NEVER use `eval()` or `Function()` constructor**
 
 ### ALWAYS
 - **ALWAYS [requirement 1]** (reason)

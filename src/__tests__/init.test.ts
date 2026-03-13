@@ -81,9 +81,61 @@ describe('init command', () => {
     const agentsMdFile = join(testDir, 'AGENTS.md');
     const content = readFileSync(agentsMdFile, 'utf-8');
     
-    expect(content).toContain('# AI-Native Coding Principles');
-    expect(content).toContain('## Naming');
-    expect(content).toContain('## Type Safety');
+    expect(content).toContain('# AGENTS.md Template');
+    expect(content).toContain('<!-- auto:script-build -->');
+  });
+
+  it('should auto-fill AGENTS.md when package.json and tsconfig.json are present', () => {
+    writeFileSync(
+      join(testDir, 'package.json'),
+      JSON.stringify(
+        {
+          scripts: {
+            build: 'pnpm build',
+            test: 'pnpm test',
+            dev: 'pnpm dev',
+            lint: 'pnpm lint',
+            typecheck: 'pnpm typecheck',
+          },
+          packageManager: 'pnpm@9.0.0',
+          dependencies: {
+            next: '^15.0.0',
+          },
+          engines: {
+            node: '>=20',
+          },
+        },
+        null,
+        2,
+      ),
+      'utf-8',
+    );
+
+    writeFileSync(
+      join(testDir, 'tsconfig.json'),
+      `{
+  "compilerOptions": {
+    // smart init should parse this
+    "strict": true,
+    "target": "ES2022",
+  }
+}`,
+      'utf-8',
+    );
+
+    spawnSync('node', [distPath, 'init'], {
+      cwd: testDir,
+      encoding: 'utf-8',
+    });
+
+    const agentsMdFile = join(testDir, 'AGENTS.md');
+    const content = readFileSync(agentsMdFile, 'utf-8');
+
+    expect(content).toContain('<!-- ai-native:managed -->');
+    expect(content).toContain('**Framework**: next');
+    expect(content).toContain('pnpm build');
+    expect(content).toContain('pnpm test');
+    expect(content).toContain('**Strict mode**: Enabled');
   });
 
   it('should append to existing AGENTS.md and preserve existing content', () => {
@@ -100,8 +152,8 @@ describe('init command', () => {
     
     expect(content).toContain('# My Project');
     expect(content).toContain('Existing documentation here.');
-    expect(content).toContain('# AI-Native Coding Principles');
-    expect(content.indexOf('# My Project')).toBeLessThan(content.indexOf('# AI-Native Coding Principles'));
+    expect(content).toContain('<!-- ai-native:managed -->');
+    expect(content.indexOf('# My Project')).toBeLessThan(content.indexOf('<!-- ai-native:managed -->'));
   });
 
   it('should be idempotent - running init twice does not duplicate AGENTS.md section', () => {
@@ -118,7 +170,7 @@ describe('init command', () => {
     const agentsMdFile = join(testDir, 'AGENTS.md');
     const content = readFileSync(agentsMdFile, 'utf-8');
     
-    const matches = content.match(/# AI-Native Coding Principles/g);
+    const matches = content.match(/<!-- ai-native:managed -->/g);
     expect(matches).not.toBeNull();
     expect(matches?.length).toBe(1);
   });
