@@ -31,10 +31,36 @@ Traditional codebases force agents to repeatedly load large contexts, infer impl
 
 ## What's New in v2
 
-- Layer 1 constitution expanded to 60-80 lines with stronger MUST/NEVER enforcement
-- Top checklist rules now embedded directly in Layer 1 (AGENTS.md bootstrap, typed errors, TSDoc, explicit returns, no any)
-- `init` now supports smart AGENTS generation from `package.json` and `tsconfig.json`
-- Smart init auto-fills only high-confidence fields and leaves uncertain sections as placeholders
+### Constitution Strengthened (40 → 66 lines)
+
+v1 constitution was soft suggestion — AI agents frequently ignored Layer 2 MCP tool calls. v2 embeds critical rules directly in Layer 1 with MUST/NEVER enforcement language:
+
+- **MUST**: `AGENTS.md` bootstrap, typed domain errors, explicit return types, TSDoc on public APIs
+- **NEVER**: `any` type, `@ts-ignore`, empty catch blocks, `console.log` in production
+- New sections: Documentation Gates, Verification Gates, Security Gates, Context Optimization
+
+### Smart Init
+
+`npx ai-native init` now auto-detects your project and fills AGENTS.md with real data:
+
+| Detected | Source | Example output |
+|----------|--------|---------------|
+| Package manager | `package.json` → `packageManager` field, lockfile | `bun`, `pnpm`, `yarn` |
+| Runtime | `package.json` → `engines`, dependencies | `bun`, `node 18+` |
+| Framework | `package.json` → dependencies | `next.js`, `express`, `fastapi` |
+| Scripts | `package.json` → `scripts` | `build: tsc`, `test: vitest` |
+| Node version | `package.json` → `engines.node` | `>=18` |
+| TS config | `tsconfig.json` (JSONC-safe) | `strict: true`, `target: ES2022` |
+
+- **Smart mode**: When `package.json` or `tsconfig.json` exists — auto-fills reliable fields, leaves placeholders for uncertain ones
+- **Fallback mode**: When neither exists — uses the template with all placeholders
+- **JSONC parsing**: Safely handles `tsconfig.json` with comments (`//`, `/* */`) and trailing commas
+- **Idempotent**: `<!-- ai-native:managed -->` marker prevents duplicate sections on re-run
+
+### Breaking Changes
+
+- Constitution line count increased (40 → 66) — slightly higher per-prompt token cost (~900 → ~1100 tokens)
+- `getConstitution()` return value changed — if you consume the API directly, update accordingly
 
 ---
 
@@ -206,3 +232,26 @@ Give your AI agent this URL: `https://github.com/xodn348/ai-native`
 - [Contributing Guide](./CONTRIBUTING.md)
 
 **Evidence-informed, not prompt folklore.** Treat headline metrics as directional until replicated in your codebase.
+
+## Changelog
+
+### 2.0.0
+
+- **breaking**: Constitution expanded from 40 to 66 lines with MUST/NEVER enforcement gates
+- **feat**: Smart init — auto-detect package manager, runtime, framework, scripts from `package.json` and `tsconfig.json`
+- **feat**: JSONC-safe `tsconfig.json` parsing (comments, trailing commas, URL `//` preservation)
+- **feat**: Idempotency marker (`<!-- ai-native:managed -->`) prevents duplicate AGENTS.md sections
+- **feat**: Auto-fill AGENTS.md template with detected project metadata
+- **test**: 72 tests (parsers, constitution, init E2E)
+
+### 1.1.2
+
+- **docs**: Explain selective activation efficiency (Layer 1 code-only, Layer 2 on-demand)
+
+### 1.1.1
+
+- **docs**: README clarifications
+
+### 1.0.0
+
+- Initial release. Two-layer architecture, MCP server, setup/init commands, 16 guideline files.
